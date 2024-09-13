@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 
+
+    <div class="container-fluid">
+        <form class="d-flex" method="get">
+            <input class="form-control me-2" type="search" placeholder="Buscar por categoria" aria-label="Search" name="buscar">
+            <button class="btn btn-outline-success" type="submit" >BUSCAR</button>
+        </form>
+    </div>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -26,4 +33,6 @@
             </tr>
         {% endfor %}
     </table>
+    <a href="{% url "nuevo_producto"%}"><button class="btn btn-outline-success" type="submit" >AÑADIR NUEVO PRODUCTO</button>
+    </a>
 {% endblock %}
