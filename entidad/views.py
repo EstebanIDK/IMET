@@ -36,3 +36,4 @@ def nuevo_producto(request, template_name="entidad/producto_form.html"):
         form= ProductoForm()
     dato={"form":form}
     return render(request, template_name, dato)
+

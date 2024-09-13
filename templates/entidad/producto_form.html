@@ -1,11 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
-    <form action="" method="post" class="formulario-prueba">
-        {% csrf_token %}
-        <div class="container border-form">
-            {{ form.as_p }}
-        </div>
-        <button type="submit" value="Grabar" class="btn btn-primary">Guardar</button>
+<h1 class="h1-pueva">nuevo productos</h1>
+
+<div class="">
+    <form action="" method="post" class="formulario-prueva">
+      {% csrf_token %}
+      
+      <div class="">
+        <label for="validationCustom02" class="label-prueva">Nombre</label>
+        {{ form.nombre }}
+      </div>
+      
+      <div class="">
+        <label for="validationCustom02" class="label-prueva">Marca</label>
+        {{ form.marca }}
+      </div>
+      
+      <div class="">
+        <label for="validationCustom02" class="label-prueva">Precio</label>
+        {{ form.precio }}
+      </div>
+
+      <div class="">
+        <label for="validationCustom02" class="label-prueva">Categoría</label>
+        {{ form.categoria }}
+        <a  href="" class='bx bxs-duplicate' style='color:#00ff0df5' ></a>
+      </div>
+      
+      <div class="">
+        <label for="validationCustom02" class="label-prueva">Descripción</label>
+        {{ form.descripcion }}
+      </div>
+
+      <a href="" class="btn-prueva">Volver</a>
+      <button type="submit" value="Gravar" class="btn-prueva2 ">Guardar</button>
+      
     </form>
+</div>
+
+  
     
 {%endblock%}

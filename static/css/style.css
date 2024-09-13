@@ -326,20 +326,57 @@ body {
 }
 
 
-
-.formulario-prueba p label{
-  color: white;
-  border: 2px solid #FFa600;
+/* probonado formulario */
+.h1-pueva{
+  color: #fff;
 }
 
-.formulario-prueba {
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
+
+
+.formulario-prueva {
+  max-width: 800px;
+  margin: 50px auto;
   padding: 20px;
+  background-color: #22211e;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  border: 3px solid #FFa600;
+
 }
 
-.border-form{
-  border: 3px solid #FFa600;
-  margin-bottom: 50px;
+.label-prueva {
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 20px;
+  padding-left: 15px;
+  padding-bottom: 10px;
+  color: rgb(255, 255, 255);
+  display: block;
 }
+
+.btn-prueva {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 1.1em;
+  color: white;
+  background-color: #b30000;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+.btn-prueva2 {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 1.1em;
+  color: white;
+  background-color: #fcbb08;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
