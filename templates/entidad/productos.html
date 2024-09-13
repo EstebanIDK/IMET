@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th>Descripcion</th>
+                <th>Modificar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.marca }}</td>
+                <td>{{ producto.categoria }}</td>
+                <td>{{ producto.precio }}</td>
+                <td>{{ producto.descripcion }}</td>
+                {% comment %} <td><a href="{% url "modificar_localidad" localidad.id %}"><img src="{% static "img/editar.png" %}" width="30px"></a></td>
+                <td><a href="{% url "eliminar_localidad" localidad.id %}"><img src="{% static "img/eliminar.png" %}" width="30px"></img></a></td> {% endcomment %}
+
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
