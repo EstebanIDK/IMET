@@ -51,7 +51,7 @@ class Cliente(models.Model):
 class ProveedorProducto(models.Model):
     nombre= models.CharField(max_length=100, unique=True)
     telefono= models.CharField(max_length=10, unique=True)
-    proveedor= models.ManyToManyField('Producto')
+    proveedor= models.ManyToManyField('Producto' ,related_name='proveedores')
 
 
     class Meta:
@@ -67,13 +67,14 @@ class Producto(models.Model):
     precio= models.DecimalField(max_digits=10, decimal_places=2)
     categoria= models.ForeignKey(Categoria, on_delete=models.PROTECT)
     descripcion= models.TextField(max_length=100, null=True, blank=True)
+    cantidad=models.IntegerField(default=0)
 
     class Meta:
         verbose_name = ("Producto")
         verbose_name_plural = ("Productos")
 
     def __str__(self):
-        return f"{self.nombre} {self.marca} {self.precio}"
+        return f"{self.nombre} {self.marca} {self.precio} "
 
 class Caja(models.Model):
     empleado= models.ForeignKey(User, on_delete=models.CASCADE)

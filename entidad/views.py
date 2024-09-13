@@ -19,7 +19,8 @@ def productos(request, template_name="entidad/productos.html"):
     if busqueda:
         productos_list = Producto.objects.filter(
             Q(categoria__nombre__icontains=busqueda ) |
-            Q(nombre__icontains=busqueda) 
+            Q(nombre__icontains=busqueda) |
+            Q(marca__icontains=busqueda)
         ).distinct()
 
     dato={'productos': productos_list}

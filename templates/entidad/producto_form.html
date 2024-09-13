@@ -7,9 +7,8 @@
       {% csrf_token %}
       
       <div class="">
-        <label for="nombre" class="label-prueva">Nombre</label>
-        <input class="form-styling" type="text" name="nombre" placeholder=""/>
-        <!-- {{ form.nombre }} -->
+        <label for="validationCustom02" class="label-prueva">Nombre</label>
+        {{ form.nombre }}
       </div>
       
       <div class="">
@@ -22,10 +21,21 @@
         {{ form.precio }}
       </div>
 
+
+      <div class="">
+        <label for="validationCustom02" class="form-check">Proveedor</label>
+        <div class="proveedores">{{ form.proveedores }}</div>  
+      </div>
+
       <div class="">
         <label for="validationCustom02" class="label-prueva">Categoría</label>
         {{ form.categoria }}
         <a  href="{% url "nueva_categoria" %}" class='bx bxs-duplicate' style='color:#00ff0df5' ></a>
+      </div>
+
+      <div class="">
+        <label for="validationCustom02" class="label-prueva">stock</label>
+        {{ form.cantidad }}
       </div>
       
       <div class="">
@@ -33,10 +43,11 @@
         {{ form.descripcion }}
       </div>
 
-      <a href="{% url 'productos' %}" class="btn-prueva">Volver</a>
+      <a href="{% url 'categorias' %}" class="btn-prueva">Volver</a>
       <button type="submit" value="Gravar" class="btn-prueva2 ">Guardar</button>
       
     </form>
+    
 </div>
 
   

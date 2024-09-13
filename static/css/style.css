@@ -264,6 +264,7 @@ body {
   width: calc(100% - 260px);
   transition: all 0.5s ease;
   padding: 12px;
+  overflow-y: auto;
 }
 
 .sidebar.close~.home-section {
@@ -334,7 +335,7 @@ body {
 
 
 .formulario-prueva {
-  max-width: 800px;
+  max-width: 600px;
   margin: 50px auto;
   padding: 20px;
   background-color: #22211e;
@@ -381,11 +382,23 @@ body {
 }
 
 .form-styling {
-  width: 100%;
+  width: 30%;
   height: 35px;
 	padding-left: 15px;
 	border: none;
 	border-radius: 20px;
   margin-bottom: 20px;
-  background: rgba(8, 8, 8, 0.2);
+  background: rgba(255,255,255,.2);
 }
+
+.form-check{
+  color: #fff;
+}
+
+
+.proveedores{
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+}
+
