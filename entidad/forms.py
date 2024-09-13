@@ -10,3 +10,8 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = '__all__'
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        models: Categoria
+        field='__all__'

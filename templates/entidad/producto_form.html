@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="h1-pueva">nuevo productos</h1>
+<h1 class="h1-pueva">Nuevo producto</h1>
 
 <div class="">
     <form action="" method="post" class="formulario-prueva">
       {% csrf_token %}
       
       <div class="">
-        <label for="validationCustom02" class="label-prueva">Nombre</label>
-        {{ form.nombre }}
+        <label for="nombre" class="label-prueva">Nombre</label>
+        <input class="form-styling" type="text" name="nombre" placeholder=""/>
+        <!-- {{ form.nombre }} -->
       </div>
       
       <div class="">
@@ -24,7 +25,7 @@
       <div class="">
         <label for="validationCustom02" class="label-prueva">Categoría</label>
         {{ form.categoria }}
-        <a  href="" class='bx bxs-duplicate' style='color:#00ff0df5' ></a>
+        <a  href="{% url "nueva_categoria" %}" class='bx bxs-duplicate' style='color:#00ff0df5' ></a>
       </div>
       
       <div class="">
@@ -32,7 +33,7 @@
         {{ form.descripcion }}
       </div>
 
-      <a href="" class="btn-prueva">Volver</a>
+      <a href="{% url 'productos' %}" class="btn-prueva">Volver</a>
       <button type="submit" value="Gravar" class="btn-prueva2 ">Guardar</button>
       
     </form>

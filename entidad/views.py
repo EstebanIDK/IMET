@@ -37,3 +37,27 @@ def nuevo_producto(request, template_name="entidad/producto_form.html"):
     dato={"form":form}
     return render(request, template_name, dato)
 
+
+def categorias(request, template_name="entidad/categorias.html"):
+    categoria_list= Categoria.objects.all()
+    busqueda = request.GET.get('buscar',)
+    if busqueda:
+        categoria_list = Categoria.objects.filter(
+            Q(nombre__icontains=busqueda ) 
+        ).distinct()
+
+    dato={'categorias': categoria_list}
+    
+    return render(request, template_name, dato)
+
+
+def nueva_categoria(request, template_name="entidad/categoria_form.html"):
+    if request.method == "POST":
+        form= CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save(commit=True)
+            return redirect("categorias")
+    else:
+        form= ProductoForm()
+    dato={"form":form}
+    return render(request, template_name, dato)

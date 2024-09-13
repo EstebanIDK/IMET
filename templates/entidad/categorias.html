@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container-fluid">
+        <form class="d-flex" method="get">
+            <input class="form-control me-2" type="search" placeholder="Buscar por categoria" aria-label="Search" name="buscar">
+            <button class="btn btn-outline-success" type="submit" >BUSCAR</button>
+        </form>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        {% for categoria in categorias %}
+            <tr>
+                <td>{{ categoria.nombre }}</td>
+                {% comment %} <td><a href="{% url "modificar_localidad" localidad.id %}"><img src="{% static "img/editar.png" %}" width="30px"></a></td>
+                <td><a href="{% url "eliminar_localidad" localidad.id %}"><img src="{% static "img/eliminar.png" %}" width="30px"></img></a></td> {% endcomment %}
+
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="{% url "nueva_categoria" %}"><button class="btn btn-outline-success" type="submit" >AÑADIR NUEVA CATEGORIA</button>
+    </a>
+{% endblock %}
