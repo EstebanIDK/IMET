@@ -21,19 +21,6 @@ class ProductoForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-styling', 'rows': 3, 'cols': 40}),
 
         }
-
-        def init(self, args, **kwargs):
-            super().init(args, **kwargs)
-            if self.instance.pk:
-                self.fields['proveedores'].initial = self.instance.proveedores.all()
-
-        def save(self, commit=True):
-            producto = super().save(commit=False)
-            if commit:
-                producto.save()
-            if 'proveedores' in self.cleaned_data:
-                producto.proveedores.set(self.cleaned_data['proveedores'])
-            return producto
         
 
 

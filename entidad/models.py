@@ -51,7 +51,7 @@ class Cliente(models.Model):
 class ProveedorProducto(models.Model):
     nombre= models.CharField(max_length=100, unique=True)
     telefono= models.CharField(max_length=10, unique=True)
-    proveedor= models.ManyToManyField('Producto' ,related_name='proveedores')
+    
 
 
     class Meta:
@@ -68,6 +68,7 @@ class Producto(models.Model):
     categoria= models.ForeignKey(Categoria, on_delete=models.PROTECT)
     descripcion= models.TextField(max_length=100, null=True, blank=True)
     cantidad=models.IntegerField(default=0)
+    proveedor= models.ManyToManyField('ProveedorProducto' ,related_name='proveedores')
 
     class Meta:
         verbose_name = ("Producto")
