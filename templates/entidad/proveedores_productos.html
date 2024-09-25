@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>NOMBRE</th>
+            <th>TELÉFONO</th>
+            <th>Modificar</th>
+            <th>Eliminar</th>
+        </tr>
+    </thead>
+    {% for proveedor in proveedores %}
+        <tr>
+            <td>{{ proveedor.id }}</td>
+            <td>{{ proveedor.nombre }}</td>
+            <td>{{ proveedor.telefono }}</td>
+
+            {% comment %} <td><a href="{% url "modificar_localidad" localidad.id %}"><img src="{% static "img/editar.png" %}" width="30px"></a></td>
+            <td><a href="{% url "eliminar_localidad" localidad.id %}"><img src="{% static "img/eliminar.png" %}" width="30px"></img></a></td> {% endcomment %}
+
+        </tr>
+    {% endfor %}
+</table>
+<a href="{% url "nuevo_proveedor_producto"%}"><button class="btn btn-outline-success" type="submit" >AÑADIR NUEVO PROVEEDOR</button>
+</a>
+
+{% endblock  %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="h1-pueva">Nuevo producto</h1>
+<h1 class="h1-pueva">{{tipo}} producto{{dato}}</h1>
 
 <div class="">
     <form action="" method="post" class="formulario-prueva">
@@ -43,7 +43,7 @@
         {{ form.descripcion }}
       </div>
 
-      <a href="{% url 'categorias' %}" class="btn-prueva">Volver</a>
+      <a href="{% url 'productos' %}" class="btn-prueva">Volver</a>
       <button type="submit" value="Gravar" class="btn-prueva2 ">Guardar</button>
       
     </form>
