@@ -475,11 +475,6 @@ body {
   box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
 }
 
-.btn-prueva2:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(40, 167, 69, 0.3);
-}
 
 /* FIN PROVEEDOR PRODUCTOS FORM*/
 /* FIN PROVEEDOR PRODUCTOS FORM*/

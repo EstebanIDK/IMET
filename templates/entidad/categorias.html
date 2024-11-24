@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% load static%}
+{% load static %}
 {% block content %}
 
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categorias</title>
+    <title>Categorías</title>
     <link rel="stylesheet" href="{% static 'css/categorias_tabla.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.min.css">
 </head>
 <h1 class="categories-title">Categorías</h1>
 
@@ -52,9 +52,57 @@
 </table>
 <br>
 {% if perms.auth.add_caja %}
-<a href="{% url 'nueva_categoria' %}" class="btn-add-category">
-    <i class='bx bx-plus-circle'></i> AÑADIR NUEVA CATEGORÍA
-</a>
+<div class="btn-container">
+    <a href="{% url 'nueva_categoria' %}" class="btn-add-category">
+        Nueva categoría
+    </a>
+</div>
 {% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-categorias').DataTable({
+            "paging": true,
+            "ordering": true,
+            "searching": true,
+            "lengthChange": false,
+            "columnDefs": [
+                {
+                    "targets": [0],  // Solo habilita el ordenamiento en la columna 'Nombre' (índice 0)
+                    "orderable": true
+                },
+                {
+                    "targets": [1],  // Deshabilita el ordenamiento en la columna 'Acciones' (índice 1)
+                    "orderable": false
+                }
+            ],
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sPrevious": "Anterior",
+                    "sNext": "Siguiente",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+    });
+</script>
 
 {% endblock %}

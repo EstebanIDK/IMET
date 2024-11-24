@@ -11,7 +11,11 @@
     <title>Caja</title>
     <link rel="stylesheet" href="{% static 'css/caja.css' %}">
 </head>
-
+<div class="messages">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
 <div class="main-container">
     {% if caja_activa %}
         <div class="left-section">
@@ -39,12 +43,12 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button type="button" onclick="abrir_modal_edicion('{% url 'ingresar_dinero' %}')" class="button button-green">
+                    <a href="{% url 'ingresar_dinero' %}" class="button button-green">
                         Ingresar dinero
-                    </button>
-                    <button type="button" onclick="abrir_modal_edicion('{% url 'retirar_dinero' %}')" class="button button-red">
+                    </a>
+                    <a href="{%url 'retirar_dinero' %}" class="button button-red">
                         Retirar dinero
-                    </button>
+                    </a>
                 </div>
             </div>
 

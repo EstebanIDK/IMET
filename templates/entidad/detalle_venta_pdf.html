@@ -3,81 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle de Venta</title>
+    <title>Factura de Venta</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            color: #333;
         }
-        h1 {
+        h1, h2, h3 {
             text-align: center;
             margin-bottom: 20px;
+            color: #0056b3;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header {
+            font-size: 14px;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        .footer {
+            font-size: 12px;
+            margin-top: 30px;
+            color: #777;
+        }
+        .details {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .details strong {
             color: #0056b3;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            font-size: 14px;
         }
         .table th, .table td {
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
         }
         .table th {
             background-color: #f8f9fa;
             font-weight: bold;
+            text-align: center;
         }
         .table-striped tr:nth-child(odd) {
             background-color: #f9f9f9;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        .summary {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 14px;
         }
-        .footer {
+        .summary strong {
+            font-size: 16px;
+        }
+        .thank-you {
             text-align: center;
-            font-size: 12px;
-            margin-top: 30px;
-            color: #777;
+            margin-top: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Detalle de Venta #{{ venta.id }}</h1>
-        
-        <div>
-            <strong>Cliente:</strong> {{ venta.cliente.nombre }}<br>
-            <strong>Fecha de Venta:</strong> {{ venta.fecha }}<br>
-            <strong>Total:</strong> ${{ venta.total }}<br>
+        <!-- Encabezado -->
+        <div class="header">
+            <h1>Factura de Venta</h1>
+            <p><strong>Número de Factura:</strong> {{ venta.id|default:"000000" }}</p>
+            <p><strong>Fecha de Emisión:</strong> {{ venta.fecha }}</p>
         </div>
+
+        <div class="details">
+            <p><strong>Cliente:</strong> {{ venta.cliente.nombre }} {{ venta.cliente.apellido }}</p>
+            <p><strong>Teléfono:</strong> {{ venta.cliente.telefono }}</p>
+        </div>
+
         
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in dxp %}
-                    <tr>
-                        <td>{{ producto.producto.nombre }}</td>
-                        <td>{{ producto.cantidad }}</td>
-                        <td>${{ producto.producto.precio }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+       <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dxp in detalle_venta_producto_list %}
+            <tr>
+                <td>{{ dxp.producto.nombre }}</td>
+                <td>{{ dxp.cantidad }}</td>
+                <td>${{ dxp.producto.precio|floatformat:2 }}</td>
+                <td>${{ dxp.subtotal_producto|floatformat:2 }}</td>  
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>>
         </table>
-        <div class="text-end mt-3">
-            <p class="total">TOTAL: {{venta.total}}</p>
+        
+
+        
+        <div class="summary">
+            <p><strong>Total sin Descuento:</strong>${{ total_sin_descuento|floatformat:2 }}</td></p>
+            <p><strong>Descuento:</strong>%{{ descuento|floatformat:2 }}</td></p>
+            <p><strong>Total con Descuento:</strong>%{{ total_con_descuento}}</td></p>
+            <p><strong>Total:</strong> ${{ total_final|floatformat:2 }}</p>
         </div>
+
+  
+        <div class="thank-you">
+            ¡Gracias por su compra!
+        </div>
+
+        
         <div class="footer">
-            <p>Gracias por su compra</p>
-        </div>
+            <p><strong>Empresa:</strong> Ferreteria IMET</p>
+            <p><strong>Dirección:</strong> Av. Principal 123, Ciudad</p>
+            <p><strong>Teléfono:</strong> +54 000 000 000</p>
+            <p><strong>Correo:</strong> contacto@imet.com</p>
     </div>
 </body>
 </html>

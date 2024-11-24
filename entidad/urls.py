@@ -5,7 +5,6 @@ from . import views
 urlpatterns = [
     path('', views.home, name="home"),
     path('permiso_denegado', views.permiso_denegado, name="permiso_denegado"),
-    path('opciones/', views.opciones, name="opciones"),
 
     #PRODUCTOS
     path('productos/', views.productos, name="productos"),
@@ -32,16 +31,17 @@ urlpatterns = [
     path('ingresar_dinero/',views.ingresar_dinero, name='ingresar_dinero'),
     path('retirar_dinero/',views.retirar_dinero, name='retirar_dinero'),
     path('cajas',views.cajas, name='cajas'),
-
-    #VENTAS
     path('caja/<int:pk>/ventas', views.ventas, name='ventas'),
-    path('venta/<int:pk>/', views.detalle_venta, name='detalle_venta'),
 
-    path('ventas/', views.ventasactual, name='ventasactual'),
-
+    #VENTA   
     path('ventas/nueva/', views.crear_venta, name='crear_venta'),
+    path('venta/<int:pk>/', views.detalle_venta, name='detalle_venta'),
     path('detalle_venta_pdf/<int:pk>/', views.detalle_venta_pdf, name='detalle_venta_pdf'),
+    path('ventas/', views.ventasactual, name='ventasactual'),
     path('venta_exitosa/<int:pk>/', views.venta_exitosa, name='venta_exitosa'),
+
+
+
     # CLIENTES
     path("clientes", views.clientes, name="clientes"),
     path('nuevo_cliente/', views.nuevo_cliente, name="nuevo_cliente"),
@@ -49,11 +49,14 @@ urlpatterns = [
     path("eliminar_cliente/<int:pk>",views.eliminar_cliente, name="eliminar_cliente"),
     path('ventas_clientes/<int:pk>/ventas', views.ventas_clientes, name='ventas_clientes'),
 
-    #PRUEVA LOGIN
+    #LOGIN
     path("usuarios/", views.usuarios, name='usuarios'),
     path("nuevo_usuario/", views.nuevo_usuario, name='nuevo_usuario'),
+    path("modificar_usuario/<int:pk>", views.modificar_usuario, name='modificar_usuario'),
+    path("eliminar_usuario/<int:pk>", views.eliminar_usuario, name='eliminar_usuario'), ##CREO QUE NO IRIA EN EL SISTEMA. SOLO PARA PROBAR
     path("login/", views.user_login, name="login"),
     path("logout/", views.login_logout, name='logout'),
+    path("change_password/<int:pk>", views.change_password_user, name='change_password'),
 
 
     

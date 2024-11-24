@@ -40,28 +40,50 @@
             </div>
             <h3>Clientes Top</h3>
         </a>
+
+        <div class="chart-card">
+            <div class="card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <h3>Precio del Dólar</h3>
+            <p>Dólar Oficial: ${{ dolar_oficial.venta }}</p>
+            <p>Dólar Blue: ${{ dolar_blue.venta }}</p>
+        </div>
+
     </div>
     {% if productos_stock_bajo %}
-<div class="stock-alerts-container">
-    <div class="stock-alerts-header">
-        <i class="fas fa-exclamation-triangle alert-icon"></i>
-        <h3>Productos con Stock Bajo</h3>
-    </div>
-    <div class="stock-alerts-list">
-        {% for producto in productos_stock_bajo %}
-        <div class="alert-item">
-            <div class="alert-content">
-                <span class="alert-product-name">{{ producto.nombre }}</span>
-                <span class="alert-stock-badge stock-bajo">{{ producto.cantidad }}</span>
+    <div class="stock-alerts-wrapper">
+        <div class="stock-alerts-bar" onclick="toggleAlerts()">
+            <div class="bar-content">
+                <i class="fas fa-exclamation-triangle alert-icon"></i>
+                <h3>Productos con Stock Bajo ({{ productos_stock_bajo|length }})</h3>
             </div>
-            <a href="{% url 'modificar_producto' producto.id %}" class="alert-action">
-                Gestionar Stock
-            </a>
+            <i class="fas fa-chevron-down toggle-icon"></i>
         </div>
-        {% endfor %}
+        <div class="stock-alerts-container collapsed">
+            <div class="stock-alerts-list">
+                {% for producto in productos_stock_bajo %}
+                <div class="alert-item">
+                    <div class="alert-content">
+                        <span class="alert-product-name">{{ producto.nombre }}</span>
+                        <span class="alert-stock-badge stock-bajo">{{ producto.cantidad }}</span>
+                    </div>
+                    <a href="{% url 'modificar_producto' producto.id %}" class="alert-action">
+                        Gestionar Stock
+                    </a>
+                </div>
+                {% endfor %}
     </div>
 </div>
 {% endif %}
+<script>
+    function toggleAlerts() {
+        const container = document.querySelector('.stock-alerts-container');
+        const toggleIcon = document.querySelector('.toggle-icon');
+        container.classList.toggle('collapsed');
+        toggleIcon.classList.toggle('rotated');
+    }
+</script>
 </body>
 </html>
 {%endblock%}

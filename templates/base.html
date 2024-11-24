@@ -27,7 +27,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -111,17 +111,23 @@
                     <li><a href="{% url 'clientes' %}">Lista de clientes</a></li>
                 </ul>
             </li>
+            
             <li>
                 {% if perms.auth.add_user %}
-                <a href="#">
-                    <i class='bx bx-cog'></i>
-                    <span class="link_name">Opciones</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" href="{% url 'opciones' %}">Opciones</a></li>
+                <div class="iocn-link">
+                    <a href="#">
+                        <i class='bx bx-group'></i>
+                        <span class="link_name">Usuarios</span>
+                    </a>
+                    <i class='bx bxs-chevron-down arrow'></i>
+                </div>
+                <ul class="sub-menu">
+                    <li><a class="link_name" href="#">Gestión de Usuarios</a></li>
+                    <li><a href="{% url 'usuarios' %}">Lista de Usuarios</a></li>
                 </ul>
                 {% endif %}
             </li>
+            
             <li>
                 <div class="profile-details">
                     <div class="profile-content">
@@ -161,76 +167,13 @@
 
     <!-- JS de Select2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
-
-    <!-- Scripts de DataTables -->
     <script>
-        $(document).ready(function () {
-            // Función para inicializar o reinicializar una tabla
-            function initializeDataTable(selector, config) {
-                var table = $(selector);
-
-                if ($.fn.DataTable.isDataTable(table)) {
-                    table.DataTable().destroy();
-                    table.empty();
-                }
-
-                setTimeout(function () {
-                    table.DataTable(config);
-                }, 100);
-            }
-
-            // Configuración común
-            var commonConfig = {
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-                    paginate: {
-                        previous: '<i class="bx bx-chevron-left"></i>',
-                        next: '<i class="bx bx-chevron-right"></i>'
-                    }
-                },
-                serverSide: false,
-                processing: true,
-                destroy: true,
-                responsive: true
-            };
-
-            // tablas con la clase 'table-custom'
-            $('.table-custom:not(#tabla-categorias):not(#tabla-proveedores)').each(function () {
-                initializeDataTable(this, {
-                    ...commonConfig,
-                    columnDefs: [
-                        { searchable: false, targets: [2, 4, 6] },
-                        { orderable: false, targets: [1, 2, 4, 6] }
-                    ]
-                });
-            });
-
-            // tabla de categorías
-            initializeDataTable('#tabla-categorias', {
-                ...commonConfig,
-                columnDefs: [
-                    { targets: [0], searchable: true, orderable: true },
-                    { targets: [1], searchable: false, orderable: false }
-                ]
-            });
-
-            // tabla de proveedores
-            initializeDataTable('#table-custom', {
-                ...commonConfig,
-                columnDefs: [
-                    { targets: [0, 1], searchable: true, orderable: true },  // ID y Nombre
-                    { targets: [2], searchable: true, orderable: false },  // Teléfono es buscable, no ordenable
-                    { targets: [3], searchable: false, orderable: false }  // Acciones son no buscables y no ordenables
-                ]
-
-            });
-
-        });
-
+        
     </script>
-
+    
+    
     <!-- Inicialización de Select2 con checkboxes -->
-    <script>
+    {% comment %} <script>
         $(document).ready(function () {
             $('#proveedor-select').select2({
                 placeholder: 'Seleccionar proveedor/es',
@@ -255,7 +198,7 @@
                 return state.text;
             }
         });
-    </script>
+    </script> {% endcomment %}
 
     {% block extra_js %}{% endblock %}
 </body>
