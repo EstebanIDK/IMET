@@ -10,8 +10,6 @@
     <title>Registro de Venta</title>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/crea_venta.css' %}">
-    <!-- Agregar la librería de Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -23,7 +21,7 @@
                     <p>{{ message }}</p>
                 {% endfor %}
             </div>
-            <form method="POST" id="form">
+            <form method="POST">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="cliente">Cliente:</label> 
@@ -45,7 +43,6 @@
                         <option value="transferencia">Transferencia</option>
                     </select>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group col-md-8">
                         <label for="productos">Agregar producto:</label>
@@ -64,7 +61,6 @@
                         <button type="button" class="btn btn-primary" onclick="agregarProducto()">Agregar</button>
                     </div>
                 </div>
-
                 <table class="table">
                     <thead>
                         <tr>
@@ -76,64 +72,24 @@
                         </tr>
                     </thead>
                     <tbody id="productos-table">
+                        <!-- Aquí se agregarán las filas dinámicamente -->
                     </tbody>
                 </table>
-
                 <div class="form-group col-md-2">
                     <label for="descuento">Descuento (%):</label>
                     <input type="number" name="descuento" id="descuento" class="form-control" step="0.01">
                 </div>
-
                 <div class="total">Total: $<span id="total-venta">0.00</span></div>
-
                 <input type="hidden" id="productos_json" name="productos" value='[]'>
                 <input type="hidden" id="cantidades_json" name="cantidades" value='[]'>
-
                 <button type="submit" class="btn btn-success">Agregar Venta</button>
             </form>
         </div>
     </div>
 
-
-    <div class="modal fade" id="modalVentaExitosa" tabindex="-1" role="dialog" aria-labelledby="modalVentaExitosaLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalVentaExitosaLabel">Venta Exitosa</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    La venta ha sido registrada exitosamente.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-
-    <!-- {% include "entidad/venta_exitosa.html" %} -->
-
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
     <script>
-
-       $(document).ready(function () {
-            
-            $('#form').submit(function(e){
-                e.preventDefault();
-                {% if venta_exitosa %}
-                    $('modalVentaExitosa').modal('show');
-                {% endif %}
-                form.submit();
-            });
-        });
-
         $(document).ready(function () {
             $('#cliente').select2({
                 placeholder: "Buscar cliente...",
@@ -144,81 +100,75 @@
                 allowClear: true
             });
         });
-
+    
         let productosSeleccionados = [];
         let cantidadesSeleccionadas = [];
         let totalVenta = 0;
-
+    
         function agregarProducto() {
             const selectProducto = document.getElementById('productos');
             const cantidadInput = document.getElementById('cantidad');
-
+    
             const productoId = selectProducto.value;
             const cantidad = parseInt(cantidadInput.value);
-
+    
             if (productoId && cantidad > 0) {
                 const precio = parseFloat(selectProducto.options[selectProducto.selectedIndex].dataset.precio);
-                let subtotal = precio * cantidad;
-
-                // Verificar si el producto ya está en la lista
-                const index = productosSeleccionados.indexOf(productoId);
-                if (index !== -1) {
-                    // Si el producto ya existe, solo aumentamos la cantidad
-                    cantidadesSeleccionadas[index] += cantidad;
-                    subtotal = precio * cantidadesSeleccionadas[index];  // Recalculamos el subtotal con la nueva cantidad
-                    // Actualizamos la fila existente
-                    const row = document.getElementById('productos-table').rows[index];
-                    row.cells[2].innerText = cantidadesSeleccionadas[index];  // Actualizamos la cantidad
-                    row.cells[4].innerText = `$${subtotal.toFixed(2)}`;  // Actualizamos el subtotal
-                } else {
-                    // Si el producto no existe, lo agregamos a la lista
-                    productosSeleccionados.push(productoId);
-                    cantidadesSeleccionadas.push(cantidad);
-
-                    // Agregar el nuevo producto a la tabla
-                    const productosTable = document.getElementById('productos-table');
-                    const newRow = productosTable.insertRow();
-
-                    newRow.innerHTML = `
-                        <td><span class="quitar-btn" onclick="quitarProducto(this, ${subtotal})">X</span></td>
-                        <td>${selectProducto.options[selectProducto.selectedIndex].text}</td>
-                        <td>${cantidad}</td>
-                        <td>$${precio.toFixed(2)}</td>
-                        <td>$${subtotal.toFixed(2)}</td>
-                    `;
-                }
-
+                const subtotal = precio * cantidad;
+    
+                productosSeleccionados.push(productoId);
+                cantidadesSeleccionadas.push(cantidad);
+    
+                const productosTable = document.getElementById('productos-table');
+                const newRow = productosTable.insertRow();
+    
+                newRow.innerHTML = `
+                    <td><span class="quitar-btn" onclick="quitarProducto(this, ${subtotal})">X</span></td>
+                    <td>${selectProducto.options[selectProducto.selectedIndex].text}</td>
+                    <td>${cantidad}</td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                `;
+    
                 totalVenta += subtotal;
                 actualizarTotalConDescuento();  // Actualizar el total de la venta
-
+    
                 document.getElementById('productos_json').value = JSON.stringify(productosSeleccionados);
                 document.getElementById('cantidades_json').value = JSON.stringify(cantidadesSeleccionadas);
-
+    
                 selectProducto.value = "";
                 cantidadInput.value = 1;
             } else {
                 alert("Por favor, seleccione un producto y una cantidad válida.");
             }
         }
-
+    
         function quitarProducto(button, subtotal) {
             const row = button.parentNode.parentNode;
             row.parentNode.removeChild(row);
-
+    
             totalVenta -= subtotal;
             actualizarTotalConDescuento();  // Actualizar el total de la venta
         }
-
+    
         function actualizarTotalConDescuento() {
             const descuentoInput = document.getElementById('descuento');
             const descuento = parseFloat(descuentoInput.value) || 0;  // Descuento por defecto a 0 si no se proporciona
             const totalConDescuento = totalVenta - (totalVenta * (descuento / 100));
             document.getElementById('total-venta').innerText = totalConDescuento.toFixed(2);
         }
-
+    
+        document.querySelector("form").addEventListener("submit", function(event) {
+            if (productosSeleccionados.length === 0 || cantidadesSeleccionadas.length === 0) {
+                event.preventDefault();
+                alert("No hay productos seleccionados para la venta.");
+            }
+        });
+    
+        // Escuchar cambios en el campo de descuento y actualizar el total
+        document.getElementById('descuento').addEventListener('input', actualizarTotalConDescuento);
     </script>
-
 </body>
 
 </html>
-{%endblock%}
+{% endblock %}

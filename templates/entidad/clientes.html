@@ -13,7 +13,6 @@
 <table class="table-custom">
     <thead>
         <tr>
-            <th>OPCIONES</th>
             <th>dni</th>
             <th>nombre</th>
             <th>apellido</th>
@@ -30,8 +29,6 @@
                 <td>{{ cliente.apellido}}</td>
                 <td>{{ cliente.correo}}</td>
                 <td>{{ cliente.telefono}}</td>
-                <td> <a href="{% url 'ventas_clientes' cliente.id %}" class="btn btn-secondary">VER</a>
-                </td>
                 <td class="acciones-celda">
                    
                     <div class="acciones-container">
@@ -46,6 +43,8 @@
                     </div>
                     
 
+                </td>
+                <td> <a href="{% url 'ventas_clientes' cliente.id %}" class="btn btn-secondary">VER</a>
                 </td>
             </tr>
         {% empty %}

@@ -5,7 +5,7 @@ from entidad.models import *
 
 class ProductoForm(forms.ModelForm):
     proveedores = forms.ModelMultipleChoiceField(
-    queryset=ProveedorProducto.objects.all(),
+    queryset=ProveedorProducto.objects.filter(activo=True),
     widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check'}),
     required=False
     )
@@ -76,4 +76,14 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'group')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'group',)
+class UserModifyForm(forms.ModelForm):
+    first_name = forms.CharField(label='Nombre', max_length=30, required=True)
+    last_name = forms.CharField(label='Apellido', max_length=30, required=True)
+    email = forms.EmailField(label='Correo Electrónico', required=True)
+    group = forms.ModelChoiceField(label='Tipo de usuario', queryset=Group.objects.all(), required=True)
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'group','is_active',)
+

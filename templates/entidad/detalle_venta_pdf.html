@@ -48,7 +48,7 @@
         <h1>Detalle de Venta #{{ venta.id }}</h1>
         
         <div>
-            <strong>Cliente:</strong> {{ venta.cliente.nombre }}<br>
+            <strong>Cliente:</strong> {{ venta.cliente.nombre }} {{ venta.cliente.apellido }}<br>
             <strong>Fecha de Venta:</strong> {{ venta.fecha }}<br>
             <strong>Total:</strong> ${{ venta.total }}<br>
         </div>

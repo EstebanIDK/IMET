@@ -18,20 +18,45 @@ from django.db.models import Sum, Count
 from django.db.models.functions import Coalesce
 from django.core.serializers.json import DjangoJSONEncoder
 
+from xhtml2pdf import pisa
+from django.template.loader import render_to_string
 
+from django.contrib.auth.forms import SetPasswordForm, PasswordChangeForm
+
+import shutil
+import os
+
+
+from pathlib import Path
+import requests
 # Create your views here.
+
 
 
 @login_required
 def home(request):
     # Obtener productos con stock bajo (menos de 6 unidades)
     productos_stock_bajo = Producto.objects.filter(activo=True, cantidad__lte=5).order_by('cantidad')
+
+    url = 'https://dolarapi.com/v1/dolares'
+    response = requests.get(url)
     
-    context = {
-        'productos_stock_bajo': productos_stock_bajo,
+    if response.status_code == 200:
+        data = response.json()
         
-    }
-    return render(request, 'home.html', context) 
+        dolar_oficial = data[0]
+        fecha_oficial = datetime.strptime(dolar_oficial['fechaActualizacion'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        dolar_oficial['fechaActualizacion'] = fecha_oficial.strftime("%d/%m/%Y %H:%M:%S")
+        
+        dolar_blue = data[1]
+        fecha_blue = datetime.strptime(dolar_blue['fechaActualizacion'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        dolar_blue['fechaActualizacion'] = fecha_blue.strftime("%d/%m/%Y %H:%M:%S")
+    else:
+        dolar_oficial = None
+        dolar_blue = None
+    return render(request, 'home.html',{ 'productos_stock_bajo': productos_stock_bajo,
+                                        'dolar_oficial': dolar_oficial,
+                                        'dolar_blue': dolar_blue,})
 
 @login_required
 def permiso_denegado(request):
@@ -80,7 +105,11 @@ def nuevo_producto(request):
 
         # Si el formulario es válido, guarda el nuevo producto
         elif form.is_valid():
+            nombre = form.cleaned_data['nombre'].strip().lower().capitalize()
+            marca = form.cleaned_data['marca'].strip().lower().capitalize()
             producto = form.save(commit=False)
+            producto.nombre = nombre
+            producto.marca = marca
             producto.precio = precio
             producto.cantidad = cantidad
             producto.categoria = Categoria.objects.get(id=categoria_id)
@@ -128,14 +157,16 @@ def eliminar_producto(request, pk):
         return redirect('permiso_denegado')
     
     if request.method == "POST":
-        # if DetalleVentaXProducto.objects.filter(producto=producto):
-        #     messages.error(request, 'ERROR! No se puede eliminar el producto porque se encuentra asociado a otros datos.')
-        # else:
-        producto.activo = False
-        producto.cantidad = 0
-        producto.save()
-        messages.success(request, 'Producto eliminado con éxito.')
-        return redirect('productos')  # Redirige a la lista actualizada de productos
+        if DetalleVentaXProducto.objects.filter(producto=producto):
+            producto.activo = False
+            producto.cantidad = 0
+            producto.save()
+            messages.success(request, 'Producto eliminado con éxito.')
+            return redirect('productos')  # Redirige a la lista actualizada de productos
+        else:
+            producto.delete()
+            messages.success(request, 'Producto eliminado con éxito de forma permanente.')
+            return redirect('productos')  # Redirige a la lista actualizada de productos
     
     # No necesitas una confirmación de vista, solo la lógica para manejar el POST
     return render(request, "entidad/confirmar_eliminacion.html", {
@@ -364,8 +395,14 @@ def  cerrar_caja(request):
             caja.activo = False
             caja.fecha_cierre = timezone.now()
             caja.save()
-            return redirect('caja')
-    return render(request, 'entidad/cerrar_caja.html' , {'caja': caja})
+            if realizar_backup():
+                messages.success(request, 'Backup realizado con éxito.')
+                return redirect('caja')
+                
+            else:
+                messages.error(request, 'No se pudo realizar el backup.')
+                return redirect('caja')
+    return render(request, 'entidad/cerrar_caja.html', {'caja': caja})
 
 @login_required
 def ingresar_dinero(request):
@@ -395,26 +432,48 @@ def ingresar_dinero(request):
 def retirar_dinero(request):
     if not request.user.has_perm('entidad.view_caja'):
         return redirect('permiso_denegado')
-    
-    empleado= request.user
-    caja=Caja.objects.filter(activo=True).first()
-    if request.method=='POST':
-        form= RetirarDineroForm(request.POST)
+
+    empleado = request.user
+    caja = Caja.objects.filter(activo=True).first()
+
+    if not caja:
+        messages.error(request, 'No hay una caja activa.')
+        return redirect('caja')  # O a otra vista relevante
+
+    if request.method == 'POST':
+        form = RetirarDineroForm(request.POST)
+
         if form.is_valid():
-            MovimientoCaja.objects.create(caja=caja,
-                                          empleado= empleado,
-                                         tipo=form.cleaned_data["tipo"],
-                                         cantidad=form.cleaned_data["cantidad"],
-                                        descripcion=form.cleaned_data["descripcion"])
+            cantidad = form.cleaned_data["cantidad"]
+            tipo = form.cleaned_data["tipo"]
+            descripcion = form.cleaned_data["descripcion"]
 
+            if caja.saldo_total < cantidad:
+                messages.error(request, 'El monto ingresado excede el monto total de la caja.')
+            else:
+                # Crear el movimiento de caja
+                MovimientoCaja.objects.create(
+                    caja=caja,
+                    empleado=empleado,
+                    tipo=tipo,
+                    cantidad=cantidad,
+                    descripcion=descripcion,
+                )
 
-            caja.total_egresado += form.cleaned_data["cantidad"]
-            caja.saldo_total -= form.cleaned_data["cantidad"]
-            caja.save()
-            return redirect('caja')
+                # Actualizar los valores de la caja
+                caja.total_egresado += cantidad
+                caja.saldo_total -= cantidad
+                caja.save()
+
+                messages.success(request, 'Se retiró el dinero exitosamente.')
+                return redirect('caja')
+        else:
+            # Manejo de errores del formulario
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
         form = RetirarDineroForm()
-    return render(request, 'entidad/retirar_dinero_form.html', {'form':form})
+
+    return render(request, 'entidad/retirar_dinero_form.html', {'form': form})
 
 
 @login_required
@@ -424,6 +483,126 @@ def cajas(request):
     
     caja_list= Caja.objects.all()    
     return render(request, 'entidad/cajas.html', {'cajas': caja_list})
+
+
+#VENTAS
+
+@login_required
+def crear_venta(request):
+    if not request.user.has_perm('entidad.add_venta'):
+        return redirect('permiso_denegado')
+    
+    
+    empleado= request.user
+    if request.method == 'POST':
+        if not Caja.objects.filter(activo=True):
+            messages.error(request, 'No tienes ninguna caja abierta. Primero abre una  caja')
+            return redirect('crear_venta')
+        
+        # Obtener los datos del formulario
+        cliente_id = request.POST.get('cliente')
+        if not cliente_id:  # Esto cubrirá tanto None como una cadena vacía
+            messages.error(request, 'NECESITAS CARGAR CLIENTE')
+            return redirect('crear_venta')
+        metodo_pago = request.POST.get('metodo_pago')
+        productos_json = request.POST.get('productos')
+        cantidades_json = request.POST.get('cantidades')
+        descuento = request.POST.get('descuento') 
+        if not descuento:
+            descuento=0
+        else:
+            descuento=Decimal(descuento)
+        # Convertir los productos y cantidades a listas
+        productos = json.loads(productos_json)
+        cantidades = json.loads(cantidades_json)
+
+        #PROBANDO VALIDACION DE STOCK
+        for i,producto_id in enumerate(productos):
+            producto=Producto.objects.get(id=producto_id)
+            cantidad= int(cantidades[i])
+            if cantidad>producto.cantidad:
+                messages.error(request, 'No hay suficiente stock del producto '+ producto.nombre)
+                return redirect('crear_venta')
+
+
+        # Calcular el total de la venta
+        total_venta_sDes = 0
+        cantidadprod= 0
+        for i, producto_id in enumerate(productos):
+            producto = Producto.objects.get(id=producto_id)
+            cantidad = int(cantidades[i])
+            subtotal = producto.precio * cantidad
+            total_venta_sDes += subtotal
+
+            #DESCONTAR STOCK DEL PRODUCTO
+            producto.cantidad -= cantidad
+            producto.save()
+
+            #CONTADOR DE CADA UNO DE LOS PRODUCTOS
+            cantidadprod += 1
+
+
+            if descuento:
+                descuento = Decimal(descuento)
+                total_venta_conDes = total_venta_sDes - (total_venta_sDes * (descuento / 100))
+            else:
+                total_venta_conDes = total_venta_sDes 
+
+
+        # Obtener la caja del empleado (suponiendo que cada empleado tiene una caja activa)
+        caja = Caja.objects.get(activo=True)
+
+        # Crear la venta
+        nueva_venta = Venta.objects.create(
+            caja=caja,
+            cliente_id=cliente_id,
+            empleado=request.user,
+            total=total_venta_conDes,
+            forma_pago=metodo_pago,
+            descuento=descuento
+        )
+
+        # Crear el detalle de la venta
+        detalle_venta = DetalleVenta.objects.create(
+                venta=nueva_venta,
+                sub_total=total_venta_conDes,
+                cantidad=cantidadprod,
+            )
+        # Crear los detalles de venta y asociar los productos
+        for i, producto_id in enumerate(productos):
+            producto = Producto.objects.get(id=producto_id)
+            cantidad = int(cantidades[i])
+            subtotal = producto.precio * cantidad
+
+            # Crear la relación entre el detalle de la venta y el producto
+            DetalleVentaXProducto.objects.create(
+                detalle_venta=detalle_venta,
+                producto=producto,
+                cantidad=cantidad
+            )
+
+        # Actualizar la caja con el total de la venta
+        caja.saldo_total += total_venta_conDes
+        caja.save()
+
+        # Registrar el movimiento de caja
+        MovimientoCaja.objects.create(
+            caja=caja,
+            empleado= empleado,
+            tipo='VENTA',
+            cantidad=total_venta_conDes
+        )
+        return redirect('venta_exitosa', pk=nueva_venta.id)  # Redirigir a la lista de ventas o a donde prefieras
+
+    else:
+        # Obtener los clientes y productos disponibles
+        clientes = Cliente.objects.all()
+        productos = Producto.objects.filter(activo=True)
+
+        return render(request, 'entidad/crear_venta.html', {
+            'clientes': clientes,
+            'productos': productos,
+        })
 
 @login_required
 def ventas(request, pk):
@@ -446,13 +625,6 @@ def detalle_venta(request, pk):
                                                           'detalle_venta': detalle_venta,
                                                           'dxp': detalle_venta_producto_list})
 
-
-
-
-
-from django.http import HttpResponse
-from xhtml2pdf import pisa
-from django.template.loader import render_to_string
 
 def detalle_venta_pdf(request, pk):
     # Obtener los detalles de la venta (puedes usar los mismos datos que en la vista de detalles)
@@ -477,156 +649,32 @@ def detalle_venta_pdf(request, pk):
         return HttpResponse("Error generando el PDF", status=500)
     return response
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @login_required
-def crear_venta(request):
-    if not request.user.has_perm('entidad.add_venta'):
+def venta_exitosa(request, pk):
+    if not request.user.has_perm('entidad.view_detalleventa'):
         return redirect('permiso_denegado')
     
-    
-    empleado= request.user
-    venta_exitosa=False
-    if request.method == 'POST':
-        if not Caja.objects.filter(activo=True):
-            messages.error(request, 'No tienes ninguna caja abierta para realizar la venta. Primero abre una')
-            return redirect('crear_venta')
-        
-        cliente_id = request.POST.get('cliente')
-        if not cliente_id: 
-            messages.error(request, 'NECESITAS CARGAR CLIENTE')
-            return redirect('crear_venta')
-        metodo_pago = request.POST.get('metodo_pago')
-        productos_json = request.POST.get('productos')
-        cantidades_json = request.POST.get('cantidades')
-        descuento = request.POST.get('descuento') 
-        if not descuento:
-            descuento=0
-        else:
-            descuento=Decimal(descuento)
-       
-        productos = json.loads(productos_json)
-        cantidades = json.loads(cantidades_json)
-
-        
-        for i,producto_id in enumerate(productos):
-            producto=Producto.objects.get(id=producto_id)
-            cantidad= int(cantidades[i])
-            if cantidad>producto.cantidad:
-                messages.error(request, 'No hay suficiente stock del producto '+ producto.nombre)
-                return redirect('crear_venta')
-
-
-       
-        total_venta_sDes = 0
-        cantidadprod= 0
-        for i, producto_id in enumerate(productos):
-            producto = Producto.objects.get(id=producto_id)
-            cantidad = int(cantidades[i])
-            subtotal = producto.precio * cantidad
-            total_venta_sDes += subtotal
-
-          
-            producto.cantidad -= cantidad
-            producto.save()
-            
-            cantidadprod += 1
-
-            if descuento:
-                descuento = Decimal(descuento)
-                total_venta_conDes = total_venta_sDes - (total_venta_sDes * (descuento / 100))
-            else:
-                total_venta_conDes = total_venta_sDes 
-
-
-       
-        caja = Caja.objects.get(activo=True)
-
-      
-        nueva_venta = Venta.objects.create(
-            caja=caja,
-            cliente_id=cliente_id,
-            empleado=request.user,
-            total=total_venta_conDes,
-            forma_pago=metodo_pago,
-            descuento=descuento
-        )
-
-      
-        detalle_venta = DetalleVenta.objects.create(
-                venta=nueva_venta,
-                sub_total=total_venta_conDes,
-                cantidad=cantidadprod,
-            )
-       
-        for i, producto_id in enumerate(productos):
-            producto = Producto.objects.get(id=producto_id)
-            cantidad = int(cantidades[i])
-            subtotal = producto.precio * cantidad
-
-            
-            DetalleVentaXProducto.objects.create(
-                detalle_venta=detalle_venta,
-                producto=producto,
-                cantidad=cantidad
-            )
-
-       
-        caja.saldo_total += total_venta_conDes
-        caja.save()
-
-        MovimientoCaja.objects.create(
-            caja=caja,
-            empleado= empleado,
-            tipo='VENTA',
-            cantidad=total_venta_conDes
-        )
-        return redirect('crear_venta')
-        venta_exitosa=True
-    else:
-       
-        clientes = Cliente.objects.all()
-        productos = Producto.objects.all()
-
-        return render(request, 'entidad/crear_venta.html', {
-            'clientes': clientes,
-            'productos': productos,
-            'venta_exitosa':venta_exitosa
-        })
-
-
+    venta = Venta.objects.get(id=pk)
+    detalle_venta = DetalleVenta.objects.get(venta=venta)
+    detalle_venta_producto_list = DetalleVentaXProducto.objects.filter(detalle_venta= detalle_venta)
+    return render(request, 'entidad/venta_exitosa.html', {'venta' : venta,
+                                                          'detalle_venta': detalle_venta,
+                                                          'dxp': detalle_venta_producto_list})
 
     
 @login_required
 def ventasactual(request):
     if not request.user.has_perm('entidad.view_venta'):
         return redirect('permiso_denegado')
+    try:
+        caja = Caja.objects.get(activo=True)
+    except Caja.DoesNotExist:
+        messages.error(request, 'Por favor, abre una caja para ver el registro de ventas')
+        return redirect('caja')
     
-    empleado= request.user
-    caja= Caja.objects.get(activo=True)
     ventas_list = Venta.objects.filter(caja=caja)
-    return render(request, 'entidad/ventas.html', {'ventas':ventas_list,
-                  'caja':caja.id})
+    return render(request, 'entidad/ventas.html', {'ventas': ventas_list, 'caja': caja.id})
+
 
 
 # CLIENTES
@@ -670,21 +718,24 @@ def modificar_cliente(request, pk, template_name="entidad/cliente_form.html"):
     return render (request, template_name, dato)
 
 @login_required
-def eliminar_cliente(request, pk):
-    if not request.user.has_perm('entidad.delete_cliente'):
-        return redirect('permiso_denegado')
-    
-    cliente = Cliente.objects.get(id=pk)
-    if request.method == "POST":
-        cliente.delete()
-        messages.success(request, 'Proveedor eliminado correctamente')
-        return redirect('clientes')
+def eliminar_cliente(request, pk): 
+    cliente = get_object_or_404(Cliente._base_manager, id=pk) 
+ 
+    if not request.user.has_perm('entidad.delete_cliente') or not cliente.activo:
+        return redirect('permiso_denegado') 
 
+    if request.method == 'POST': 
+        cliente.activo = False  
+        cliente.save()
+       
+        return redirect('clientes')  
+    
+    
     return render(request, "entidad/confirmar_eliminacion.html", {
         'objeto': 'el cliente',
         'dato': cliente.nombre,
-        'urls': 'clientes'
-    })
+        'urls': 'clientes',
+        })
 
 
 @login_required
@@ -699,16 +750,17 @@ def ventas_clientes(request, pk):
 
 
 
-#PROBANDO LOGIN 
+#LOGIN 
 
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.models import User, Group
-from .forms import CustomUserCreationForm
 
 
 def usuarios(request):
-    usuarios_list= User.objects.filter(is_active=True).exclude(username='admin')
+    if not request.user.has_perm('entidad.add_caja'):
+        return redirect('permiso_denegado')
+    usuarios_list= User.objects.filter().exclude(username='admin')
     return render(request, 'login/usuarios.html', {'usuarios': usuarios_list})
 
 
@@ -717,7 +769,7 @@ def nuevo_usuario(request):
     if not request.user.has_perm('entidad.delete_caja'):
         return redirect('permiso_denegado')
     
-    if request.method == 'POST':
+    elif request.method == 'POST':
         username = request.POST['username']
         form = CustomUserCreationForm(request.POST)
         if User.objects.filter(username=username).exists():
@@ -739,18 +791,89 @@ def nuevo_usuario(request):
         form = CustomUserCreationForm()
     return render(request, 'login/usuario_form.html', {'form': form})
 
+def modificar_usuario(request, pk):
+    usuario = User.objects.get(id=pk)
+    form = UserModifyForm(request.POST or None, instance=usuario)
+    if request.method == 'POST':
+        if form.is_valid:
+            usuario = form.save(commit=False)  # Guarda los campos básicos
+            usuario.save()  # Guardar primero el usuario
+            # Actualizar el grupo seleccionado
+            group = form.cleaned_data['group']
+            usuario.groups.clear()  # Limpia los grupos existentes
+            usuario.groups.add(group)  # Añade el grupo seleccionado
+            return redirect('usuarios')  # Redirige a la vista deseada
+        
+    return render(request, 'login/modificar_usuario.html', {'form':form, 'usuario': usuario})
 
+def change_password_user(request, pk):
+    if not request.user.has_perm('entidad.delete_caja'):
+        return redirect('permiso_denegado')
+    
+    usuario = User.objects.get(id=pk)
+    if request.method == 'POST':
+        form = SetPasswordForm(usuario, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"La contraseña del usuario {usuario.username} ha sido cambiada exitosamente.")
+            return redirect('usuarios')
+    else:
+        form = SetPasswordForm(usuario)
+    return render(request, 'login/cambiar_contraseña.html', {'form': form, 'usuario': usuario})
+
+def eliminar_usuario(request, pk):
+    if not request.user.has_perm('entidad.delete_caja'):
+        return redirect('permiso_denegado')
+
+    usuario = User.objects.get(id=pk)
+    if request.method == 'POST':
+        usuario.is_active= False
+        usuario.save()
+        messages.success(request, 'Usuario eliminado con éxito.')
+        return redirect('usuarios')
+    
+    return render(request, "entidad/confirmar_eliminacion.html", {
+        'objeto': 'el usuario',
+        'dato': usuario.username,
+        'urls': 'usuarios'
+    })
 
 def user_login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
+
+
+        try:
+            usuario = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, 'Nombre de usuario incorrecto.')
+            return render(request, 'login/login.html')
+        
+
         if user is not None:
+            AccesoUsuario.objects.create(usuario=usuario,
+                                        ip_address=request.META['REMOTE_ADDR'],
+                                        tipo= True)
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Invalid credentials')
+            intento = AccesoUsuario.objects.filter(usuario=usuario, tipo= False, fecha_ingreso= datetime.now().date()).count()
+            if  intento > 4:
+                user_desactivado = User.objects.get(username=usuario)
+                user_desactivado.is_active = False
+                user_desactivado.save()
+                messages.error(request, 'Usuario bloqueado.Por favor, comuniquese con su Administrador.')
+            else:
+                AccesoUsuario.objects.create(usuario=usuario,
+                                            ip_address=request.META['REMOTE_ADDR'],
+                                            tipo= False)
+                contador = 5 - intento
+                messages.error(request, f"Contraseña incorrecta, le quedan {contador} {'intento' if contador == 1 else 'intentos'}.")
+
+
+
     return render(request, 'login/login.html')
 
 
@@ -760,11 +883,9 @@ def login_logout(request):
 
 
 #GRAFICOS
-
-
 def clientes_mas_ventas(request):
     clientes_ventas = (
-        Cliente.objects
+        Cliente.objects.filter(activo=True)  
         .annotate(total_ventas=Count('venta'))
         .order_by('-total_ventas')[:4]
     )
@@ -782,40 +903,59 @@ def clientes_mas_ventas(request):
     
     return render(request, 'entidad/top_ventas.html', {
         'titulo': 'Clientes con mas compras',
-        'datos_grafico': datos_json  
-    })
+        'datos_grafico': datos_json
+        })
 
 def productos_mas_vendidos(request):
   
-        productos_ventas = (
-            Producto.objects
-            .annotate(
-                total_vendido=Coalesce(
-                    Sum('detalleventaxproducto__cantidad'),
-                    0
-                )
+   
+    productos_ventas = (
+        Producto.objects.filter(activo=True)  
+        .annotate(
+            total_vendido=Coalesce(
+                Sum('detalleventaxproducto__cantidad'),
+                0
             )
-            .order_by('-total_vendido')[:5]
         )
+        .order_by('-total_vendido')[:5]  
+    )
+    
+
+    datos_grafico = [
+        {
+            'name': f"{producto.nombre} {producto.marca}" if producto.marca else producto.nombre,
+            'ventas': int(producto.total_vendido)
+        }
+        for producto in productos_ventas
+    ]
+    
+   
+    datos_json = json.dumps(datos_grafico, cls=DjangoJSONEncoder)
+    
+   
+    return render(request, 'entidad/top_ventas.html', {
+        'datos_grafico': datos_json,
+        'titulo': 'Productos más vendidos',
+    })
+
+def realizar_backup():
+
+    try:
+      
+        db_path = Path("db.sqlite3")
         
-        datos_grafico = [
-            {
-                'name': f"{producto.nombre} {producto.marca}" if producto.marca else producto.nombre,
-                'ventas': int(producto.total_vendido) 
-            }
-            for producto in productos_ventas
-        ]
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_path = Path(f"backups/backup_{timestamp}.sqlite3")
+        backup_path.parent.mkdir(parents=True, exist_ok=True)
+
+        backup_local_path = Path(f"C:/backups/backup_{timestamp}.sqlite3")
+        backup_local_path.parent.mkdir(parents=True, exist_ok=True)
         
-        datos_json = json.dumps(datos_grafico, cls=DjangoJSONEncoder)
         
-        return render(request,  'entidad/top_ventas.html', {
-            'datos_grafico': datos_json,
-            'titulo': 'Productos mas vendidos',
-            
-        })
-
-
-
-def opciones(request):
-    return render(request, 'entidad/opciones.html')
-
+        shutil.copy(db_path, backup_path)
+        shutil.copy(db_path, backup_local_path)
+        
+        return True
+    except Exception as e:
+        print(f"Error al crear el backup: {e}")
+        return False
