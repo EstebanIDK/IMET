@@ -2,127 +2,81 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Venta</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            padding: 0;
         }
-        .container {
-            width: 100%;
-            margin: 0 auto;
-        }
-        .header {
+        h1 {
             text-align: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            font-size: 24px;
-            margin: 0 0 10px 0;
-        }
-        .header h2 {
-            font-size: 18px;
-            margin: 0 0 20px 0;
-        }
-        .info-section {
             margin-bottom: 20px;
+            color: #0056b3;
         }
-        .info-section p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        table {
+        .table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
-        th, td {
-            padding: 10px;
+        .table th, .table td {
+            padding: 8px;
+            border: 1px solid #ddd;
             text-align: left;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
         }
-        th {
-            background-color: #f2f2f2;
+        .table th {
+            background-color: #f8f9fa;
             font-weight: bold;
         }
-        .text-right {
-            text-align: right;
-        }
-        .total-section {
-            margin-top: 20px;
-            border-top: 2px solid #000;
-        }
-        .total-row {
-            font-weight: bold;
+        .table-striped tr:nth-child(odd) {
             background-color: #f9f9f9;
         }
-        .subtotal {
-            font-weight: normal;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
         .footer {
-            margin-top: 40px;
             text-align: center;
             font-size: 12px;
-            color: #666;
+            margin-top: 30px;
+            color: #777;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Detalle de Venta</h1>
-            <h2>Venta N°: {{ venta.id }}</h2>
+        <h1>Detalle de Venta #{{ venta.id }}</h1>
+        
+        <div>
+            <strong>Cliente:</strong> {{ venta.cliente.nombre }}<br>
+            <strong>Fecha de Venta:</strong> {{ venta.fecha }}<br>
+            <strong>Total:</strong> ${{ venta.total }}<br>
         </div>
-
-        <div class="info-section">
-            <p><strong>Cliente:</strong> {{ venta.cliente }}</p>
-            <p><strong>Empleado:</strong> {{ venta.empleado }}</p>
-            <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y H:i:s" }}</p>
-            <p><strong>Forma de Pago:</strong> {{ venta.forma_pago }}</p>
-        </div>
-
-        <table>
+        
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Producto</th>
-                    <th class="text-right">Cantidad</th>
-                    <th class="text-right">Precio Unitario</th>
-                    <th class="text-right">Subtotal</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    
                 </tr>
             </thead>
             <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.producto.nombre }}</td>
-                    <td class="text-right">{{ producto.cantidad }}</td>
-                    <td class="text-right">${{ producto.producto.precio|floatformat:2 }}</td>
-                    <td class="text-right">${{ producto.cantidad|multiply:producto.producto.precio|floatformat:2 }}</td>
-                </tr>
+                {% for producto in dxp %}
+                    <tr>
+                        <td>{{ producto.producto.nombre }}</td>
+                        <td>{{ producto.cantidad }}</td>
+                        <td>${{ producto.producto.precio }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
-            <tfoot class="total-section">
-                <tr class="subtotal">
-                    <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
-                    <td class="text-right">${{ detalle_venta.sub_total|floatformat:2 }}</td>
-                </tr>
-                {% if venta.descuento > 0 %}
-                <tr class="subtotal">
-                    <td colspan="3" class="text-right"><strong>Descuento ({{ venta.descuento }}%):</strong></td>
-                    <td class="text-right">-${{ detalle_venta.sub_total|multiply:venta.descuento|divide:100|floatformat:2 }}</td>
-                </tr>
-                {% endif %}
-                <tr class="total-row">
-                    <td colspan="3" class="text-right"><strong>TOTAL:</strong></td>
-                    <td class="text-right">${{ venta.total|floatformat:2 }}</td>
-                </tr>
-            </tfoot>
         </table>
-
+        <div class="text-end mt-3">
+            <p class="total">TOTAL: {{venta.total}}</p>
+        </div>
         <div class="footer">
             <p>Gracias por su compra</p>
-            <p>Documento generado el {{ venta.fecha|date:"d/m/Y H:i:s" }}</p>
         </div>
     </div>
 </body>

@@ -27,7 +27,9 @@
                 <div class="input-group">
                     <select id="proveedor-select" name="proveedores" class="form-select custom-select" multiple="multiple">
                         {% for proveedor in form.proveedores.field.queryset %}
-                            <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                            <option value="{{ proveedor.id }}" {% if proveedor in form.instance.proveedores.all %}selected{% endif %}>
+                                {{ proveedor.nombre }}
+                            </option>
                         {% endfor %}
                     </select>
                     

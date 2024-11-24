@@ -15,6 +15,7 @@ METODO_PAGO_CHOICE=(
 
 class Categoria(models.Model):
     nombre= models.CharField(max_length=50, unique=True, null=False, blank=False)
+    activo= models.BooleanField(default=True)
     
     class Meta:
         verbose_name = ("Categoria")
@@ -51,7 +52,7 @@ class Cliente(models.Model):
 class ProveedorProducto(models.Model):
     nombre= models.CharField(max_length=100, unique=True)
     telefono= models.CharField(max_length=10, unique=True)
-    
+    activo= models.BooleanField(default=True)
 
 
     class Meta:
@@ -68,7 +69,8 @@ class Producto(models.Model):
     categoria= models.ForeignKey(Categoria, on_delete=models.PROTECT)
     descripcion= models.TextField(max_length=100, null=True, blank=True)
     cantidad=models.IntegerField(default=0)
-    proveedor= models.ManyToManyField('ProveedorProducto' ,related_name='proveedores')
+    proveedores= models.ManyToManyField('ProveedorProducto' ,related_name='proveedores')
+    activo= models.BooleanField(default=True)
 
     class Meta:
         verbose_name = ("Producto")
@@ -121,8 +123,6 @@ class Venta(models.Model):
     estado= models.CharField(max_length=4, choices=ESTADOS_CHOICES, default="NOP")
     forma_pago = models.CharField(max_length=100,choices=METODO_PAGO_CHOICE, default="EFEC")
     descuento= models.DecimalField(max_digits=10, default=0, decimal_places=2)
-    pdf_path = models.CharField(max_length=255, null=True, blank=True)
-
     class Meta:
         verbose_name = ("Venta")
         verbose_name_plural = ("Ventas")

@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required,permission_required
 from django.core.exceptions import PermissionDenied
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+
 
 from django.http import HttpResponse, JsonResponse
 from entidad.forms import *
@@ -25,17 +24,25 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 @login_required
 def home(request):
-    return render(request, "home.html")
+    # Obtener productos con stock bajo (menos de 6 unidades)
+    productos_stock_bajo = Producto.objects.filter(activo=True, cantidad__lte=5).order_by('cantidad')
+    
+    context = {
+        'productos_stock_bajo': productos_stock_bajo,
+        
+    }
+    return render(request, 'home.html', context) 
 
 @login_required
 def permiso_denegado(request):
     return render(request, "permiso_denegado.html")
 
+#PRODUCTO
 @login_required
 def productos(request):
     if not request.user.has_perm('entidad.view_producto'):
         return redirect('permiso_denegado')
-    productos_list= Producto.objects.all()
+    productos_list= Producto.objects.filter(activo=True)
     return render(request, "entidad/productos.html", {'productos': productos_list})
 
 
@@ -43,30 +50,62 @@ def productos(request):
 def nuevo_producto(request):
     if not request.user.has_perm('entidad.add_producto'):
         return redirect('permiso_denegado')
-    
-    if request.method == "POST":
-        nombre= request.POST['nombre']
-        marca= request.POST['marca']
-        form= ProductoForm(request.POST)
-        if Producto.objects.filter(nombre__iexact=nombre, marca__iexact=marca).exists():
-            messages.error(request, 'El producto ya existe.')
 
+    if request.method == "POST":
+        form = ProductoForm(request.POST)
+        nombre = request.POST['nombre']
+        marca = request.POST['marca']
+        precio = Decimal(request.POST['precio'])
+        categoria_id = request.POST['categoria']
+        cantidad = int(request.POST['cantidad'])
+        proveedores_ids = request.POST.getlist('proveedores')  # Asegúrate de que el name sea 'proveedor[]' en HTML
+        print(proveedores_ids)
+
+        
+        # Verifica si el producto ya existe y está inactivo
+        if Producto.objects.filter(nombre__iexact=nombre, marca__iexact=marca, activo=False).exists():
+            producto = Producto.objects.get(nombre__iexact=nombre, marca__iexact=marca, activo=False)
+            producto.activo = True
+            producto.precio = precio
+            producto.cantidad = cantidad
+            producto.categoria = Categoria.objects.get(id=categoria_id)
+            producto.save()
+            producto.proveedores.set(proveedores_ids)  # Asigna los proveedores seleccionados
+            messages.success(request, 'Producto reactivado y actualizado exitosamente.')
+            return redirect("productos")
+        
+        # Si el producto ya existe y está activo
+        elif Producto.objects.filter(nombre__iexact=nombre, marca__iexact=marca).exists():
+            messages.error(request, 'El producto ya existe y está activo.')
+
+        # Si el formulario es válido, guarda el nuevo producto
         elif form.is_valid():
-            form.save(commit=True)
+            producto = form.save(commit=False)
+            producto.precio = precio
+            producto.cantidad = cantidad
+            producto.categoria = Categoria.objects.get(id=categoria_id)
+            producto.save()
+            producto.proveedores.set(proveedores_ids)  # Asigna los proveedores seleccionados
+            form.save_m2m()
             messages.success(request, 'Producto agregado exitosamente.')
             return redirect("productos")
+        else:
+            messages.error(request, 'Hubo un problema con el formulario. Por favor revisa los campos.')
+
     else:
-        form= ProductoForm()
-    return render(request, "entidad/producto_form.html", {"form":form,
-                                                         "tipo": 'Nuevo'})
+        form = ProductoForm()
+
+    return render(request, "entidad/producto_form.html", {"form": form, "tipo": 'Nuevo'})
 
 
 @login_required
 def modificar_producto(request, pk):
-    if not request.user.has_perm('entidad.change_producto'):
+    producto= Producto.objects.get(id=pk)
+    if not request.user.has_perm('entidad.change_producto') or not producto.activo==True:
         return redirect('permiso_denegado')
     
-    producto= Producto.objects.get(id=pk)
+    
+    
     form = ProductoForm(request.POST or None, instance=producto)
 
     if request.method == "POST":
@@ -84,18 +123,19 @@ def modificar_producto(request, pk):
                                                         'tipo': 'Modificar'})
 @login_required
 def eliminar_producto(request, pk):
-    if not request.user.has_perm('entidad.delete_producto'):
-        return redirect('permiso_denegado')
-
     producto = Producto.objects.get(id=pk)
-
+    if not request.user.has_perm('entidad.delete_producto') or not producto.activo==True:
+        return redirect('permiso_denegado')
+    
     if request.method == "POST":
-        if DetalleVentaXProducto.objects.filter(producto=producto):
-            messages.error(request, 'ERROR! No se puede eliminar el producto porque se encuentra asociado a otros datos.')
-        else:
-            producto.delete()
-            messages.success(request, 'Producto eliminado con éxito.')
-            return redirect('productos')  # Redirige a la lista actualizada de productos
+        # if DetalleVentaXProducto.objects.filter(producto=producto):
+        #     messages.error(request, 'ERROR! No se puede eliminar el producto porque se encuentra asociado a otros datos.')
+        # else:
+        producto.activo = False
+        producto.cantidad = 0
+        producto.save()
+        messages.success(request, 'Producto eliminado con éxito.')
+        return redirect('productos')  # Redirige a la lista actualizada de productos
     
     # No necesitas una confirmación de vista, solo la lógica para manejar el POST
     return render(request, "entidad/confirmar_eliminacion.html", {
@@ -104,12 +144,13 @@ def eliminar_producto(request, pk):
         'urls': 'productos'
     })
 
+#CATEGORIA
 @login_required
 def categorias(request):
     if not request.user.has_perm('entidad.view_categoria'):
         return redirect('permiso_denegado')
 
-    categoria_list= Categoria.objects.all()
+    categoria_list= Categoria.objects.filter(activo=True)
     return render(request, "entidad/categorias.html", {'categorias': categoria_list})
 
 @login_required
@@ -120,12 +161,18 @@ def nueva_categoria(request):
     if request.method == "POST":
         nombre= request.POST['nombre']
         form= CategoriaForm(request.POST)
-        if Categoria.objects.filter(nombre__iexact=nombre).exists():
-            messages.error(request, 'El producto ya existe.')
-        elif form.is_valid():
-            categoria = form.save(commit=False)
-            categoria.nombre = form.cleaned_data.get('nombre')
+        if Categoria.objects.filter(nombre__iexact=nombre, activo=False).exists():
+            categoria = Categoria.objects.get(nombre__iexact=nombre, activo=False)
+            categoria.activo = True
             categoria.save()
+            messages.success(request, 'Categoria creada y reactivada correctamente.')
+            return redirect("categorias")
+
+        elif Categoria.objects.filter(nombre__iexact=nombre).exists():
+            messages.error(request, 'El producto ya existe.')
+
+        elif form.is_valid():
+            form.save(commit=True)
             messages.success(request, 'Categoria creada correctamente.')
             return redirect("categorias")
     else:
@@ -135,10 +182,10 @@ def nueva_categoria(request):
 
 @login_required
 def modificar_categoria(request, pk):
-    if not request.user.has_perm('entidad.change_categoria'):
-        return redirect('permiso_denegado')
-
     categoria= Categoria.objects.get(id=pk)
+    if not request.user.has_perm('entidad.change_categoria') or not categoria.activo==True:
+        return redirect('permiso_denegado')
+    
     form = CategoriaForm(request.POST or None, instance=categoria)
     if request.method == "POST":
         nombre= request.POST['nombre']
@@ -155,17 +202,19 @@ def modificar_categoria(request, pk):
 
 @login_required
 def eliminar_categoria(request, pk):
-    if not request.user.has_perm('entidad.delete_categoria'):
+    categoria = Categoria.objects.get(id=pk)
+    if not request.user.has_perm('entidad.delete_categoria') or not categoria.activo==True:
         return redirect('permiso_denegado')
 
-    categoria = Categoria.objects.get(id=pk)
+    
     if request.method == "POST":
-        if Producto.objects.filter(categoria=categoria).exists():
-            messages.error(request, 'ERROR! No se puede eliminar la categoría porque está asociada a un producto.')
-        else:
-            categoria.delete()
-            messages.success(request, 'Categoría eliminada con éxito.')
-            return redirect('categorias')
+        # if Producto.objects.filter(categoria=categoria).exists():
+        #     messages.error(request, 'ERROR! No se puede eliminar la categoría porque está asociada a un producto.')
+        # else:
+        categoria.activo = False
+        categoria.save()
+        messages.success(request, 'Categoría eliminada con éxito.')
+        return redirect('categorias')
 
     return render(request, "entidad/confirmar_eliminacion.html", {
         'objeto': 'la categoría',
@@ -173,14 +222,14 @@ def eliminar_categoria(request, pk):
         'urls': 'categorias'
     })
 
+#PROVEEDORES
 @login_required
 def proveedores_productos(request):
     if not request.user.has_perm('entidad.view_proveedorproducto'):
         return redirect('permiso_denegado')
-    prov_list = ProveedorProducto.objects.all()
+    
+    prov_list = ProveedorProducto.objects.filter(activo=True)
     return render(request, "entidad/proveedores_productos.html", {'proveedores': prov_list})
-
-
 
 @login_required
 def nuevo_proveedor_producto(request):
@@ -190,7 +239,14 @@ def nuevo_proveedor_producto(request):
     if request.method == 'POST':
         nombre= request.POST['nombre']
         form = ProveedorProductoForm(request.POST)
-        if ProveedorProducto.objects.filter(nombre__iexact=nombre).exists():
+        if ProveedorProducto.objects.filter(nombre__iexact=nombre,activo=False).exists():
+            proveedor = ProveedorProducto.objects.get(nombre__iexact=nombre,activo=False)
+            proveedor.telefono = request.POST['telefono']
+            proveedor.activo = True
+            proveedor.save()
+            messages.success(request, 'Proveedor creado y reactivado correctamente')
+            return redirect("proveedores_productos")
+        elif ProveedorProducto.objects.filter(nombre__iexact=nombre).exists():
             messages.error(request, 'Proveedor ya existente.')
         elif form.is_valid():
             form.save(commit=True)
@@ -202,10 +258,10 @@ def nuevo_proveedor_producto(request):
                                                                     'tipo': 'Nuevo'})
 @login_required
 def modificar_proveedor_producto(request, pk):
-    if not request.user.has_perm('entidad.change_proveedorproducto'):
+    proveedor= ProveedorProducto.objects.get(id=pk)
+    if not request.user.has_perm('entidad.change_proveedorproducto') or not proveedor.activo==True:
         return redirect('permiso_denegado')
     
-    proveedor= ProveedorProducto.objects.get(id=pk)
     form = ProveedorProductoForm(request.POST or None, instance=proveedor)
     if request.method == "POST":
         nombre= request.POST['nombre']
@@ -220,18 +276,19 @@ def modificar_proveedor_producto(request, pk):
                                                                 'dato': ':' + proveedor.nombre})
 @login_required
 def eliminar_proveedor_producto(request, pk):
-    if not request.user.has_perm('entidad.delete_proveedorproducto'):
+    proveedor = ProveedorProducto.objects.get(id=pk)
+    if not request.user.has_perm('entidad.delete_proveedorproducto') or not proveedor.activo==True:
         return redirect('permiso_denegado')
 
-    proveedor_producto = ProveedorProducto.objects.get(id=pk)
     if request.method == "POST":
-        proveedor_producto.delete()
+        proveedor.activo = False
+        proveedor.save()
         messages.success(request, 'Proveedor eliminado correctamente')
         return redirect('proveedores_productos')
 
     return render(request, "entidad/confirmar_eliminacion.html", {
         'objeto': 'el proveedor',
-        'dato': proveedor_producto.nombre,
+        'dato': proveedor.nombre,
         'urls': 'proveedores_productos'
     })
 
@@ -393,211 +450,171 @@ def detalle_venta(request, pk):
 
 
 
-
-
-
-
-#VENTAS PRUEBA CHAT
-
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from django.template.loader import get_template
 from django.http import HttpResponse
 from xhtml2pdf import pisa
-from decimal import Decimal
-import json
-import os
-from django.conf import settings
+from django.template.loader import render_to_string
 
-def guardar_pdf(html_content, filename):
-    pdf_dir = os.path.join(settings.MEDIA_ROOT, 'ventas')
-    os.makedirs(pdf_dir, exist_ok=True)
-    filepath = os.path.join(pdf_dir, filename)
-    
-    with open(filepath, 'wb') as pdf_file:
-        pisa.CreatePDF(html_content, dest=pdf_file)
-    
-    return f'ventas/{filename}'
+def detalle_venta_pdf(request, pk):
+    # Obtener los detalles de la venta (puedes usar los mismos datos que en la vista de detalles)
+    venta = Venta.objects.get(id=pk)
+    detalle_venta = DetalleVenta.objects.get(venta=venta)
+    detalle_venta_producto_list = DetalleVentaXProducto.objects.filter(detalle_venta=detalle_venta)
+
+    # Renderizar el template HTML con los datos
+    html_content = render_to_string("entidad/detalle_venta_pdf.html", {
+        'venta': venta,
+        'detalle_venta': detalle_venta,
+        'dxp': detalle_venta_producto_list,
+    })
+
+    # Crear la respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="detalle_venta_{venta.id}.pdf"'
+
+    # Usar xhtml2pdf para convertir el HTML a PDF
+    pisa_status = pisa.CreatePDF(html_content, dest=response)
+    if pisa_status.err:
+        return HttpResponse("Error generando el PDF", status=500)
+    return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @login_required
 def crear_venta(request):
     if not request.user.has_perm('entidad.add_venta'):
         return redirect('permiso_denegado')
     
+    
+    empleado= request.user
+    venta_exitosa=False
     if request.method == 'POST':
-        # Validar caja abierta
-        if not Caja.objects.filter(activo=True).exists():
-            messages.error(request, 'No hay caja abierta. Por favor, abra una caja primero.')
+        if not Caja.objects.filter(activo=True):
+            messages.error(request, 'No tienes ninguna caja abierta para realizar la venta. Primero abre una')
             return redirect('crear_venta')
         
-        # Obtener datos del formulario
         cliente_id = request.POST.get('cliente')
-        if not cliente_id:
-            messages.error(request, 'Debe seleccionar un cliente')
+        if not cliente_id: 
+            messages.error(request, 'NECESITAS CARGAR CLIENTE')
             return redirect('crear_venta')
-            
         metodo_pago = request.POST.get('metodo_pago')
         productos_json = request.POST.get('productos')
         cantidades_json = request.POST.get('cantidades')
-        descuento = Decimal(request.POST.get('descuento', '0'))
-        
+        descuento = request.POST.get('descuento') 
+        if not descuento:
+            descuento=0
+        else:
+            descuento=Decimal(descuento)
+       
         productos = json.loads(productos_json)
         cantidades = json.loads(cantidades_json)
+
         
-        # Validar stock
-        for i, producto_id in enumerate(productos):
-            producto = Producto.objects.get(id=producto_id)
-            cantidad = int(cantidades[i])
-            if cantidad > producto.cantidad:
-                messages.error(request, f'Stock insuficiente para {producto.nombre}')
+        for i,producto_id in enumerate(productos):
+            producto=Producto.objects.get(id=producto_id)
+            cantidad= int(cantidades[i])
+            if cantidad>producto.cantidad:
+                messages.error(request, 'No hay suficiente stock del producto '+ producto.nombre)
                 return redirect('crear_venta')
-        
-        # Calcular totales
-        total_venta = Decimal('0')
+
+
+       
+        total_venta_sDes = 0
+        cantidadprod= 0
         for i, producto_id in enumerate(productos):
             producto = Producto.objects.get(id=producto_id)
             cantidad = int(cantidades[i])
-            total_venta += producto.precio * cantidad
-        
-        # Aplicar descuento
-        total_con_descuento = total_venta - (total_venta * (descuento / Decimal('100')))
-        
-        try:
-            # Crear venta
-            caja_actual = Caja.objects.get(activo=True)
-            nueva_venta = Venta.objects.create(
-                caja=caja_actual,
-                cliente_id=cliente_id,
-                empleado=request.user,
-                total=total_con_descuento,
-                forma_pago=metodo_pago,
-                descuento=descuento
-            )
+            subtotal = producto.precio * cantidad
+            total_venta_sDes += subtotal
+
+          
+            producto.cantidad -= cantidad
+            producto.save()
             
-            # Crear detalle de venta
-            detalle_venta = DetalleVenta.objects.create(
+            cantidadprod += 1
+
+            if descuento:
+                descuento = Decimal(descuento)
+                total_venta_conDes = total_venta_sDes - (total_venta_sDes * (descuento / 100))
+            else:
+                total_venta_conDes = total_venta_sDes 
+
+
+       
+        caja = Caja.objects.get(activo=True)
+
+      
+        nueva_venta = Venta.objects.create(
+            caja=caja,
+            cliente_id=cliente_id,
+            empleado=request.user,
+            total=total_venta_conDes,
+            forma_pago=metodo_pago,
+            descuento=descuento
+        )
+
+      
+        detalle_venta = DetalleVenta.objects.create(
                 venta=nueva_venta,
-                sub_total=total_venta,
-                cantidad=sum(int(c) for c in cantidades)
+                sub_total=total_venta_conDes,
+                cantidad=cantidadprod,
             )
-            
-            # Crear detalles por producto y actualizar stock
-            for i, producto_id in enumerate(productos):
-                producto = Producto.objects.get(id=producto_id)
-                cantidad = int(cantidades[i])
-                
-                DetalleVentaXProducto.objects.create(
-                    detalle_venta=detalle_venta,
-                    producto=producto,
-                    cantidad=cantidad
-                )
-                
-                # Actualizar stock
-                producto.cantidad -= cantidad
-                producto.save()
-            
-            # Actualizar caja
-            caja_actual.saldo_total += total_con_descuento
-            caja_actual.save()
-            
-            # Registrar movimiento
-            MovimientoCaja.objects.create(
-                caja=caja_actual,
-                empleado=request.user,
-                tipo='VENTA',
-                cantidad=total_con_descuento
-            )
-            
-            # Generar PDF
-            try:
-                template = get_template('entidad/detalle_venta_pdf.html')
-                context = {
-                    'venta': nueva_venta,
-                    'detalle_venta': detalle_venta,
-                    'productos': DetalleVentaXProducto.objects.filter(detalle_venta=detalle_venta)
-                }
-                
-                html = template.render(context)
-                filename = f'venta_{nueva_venta.id}.pdf'
-                pdf_path = guardar_pdf(html, filename)
-                
-                nueva_venta.pdf_path = pdf_path
-                nueva_venta.save()
-                
-                messages.success(request, 'Venta realizada exitosamente')
-            except Exception as e:
-                messages.warning(request, f'Venta realizada pero hubo un error al generar el PDF: {str(e)}')
-            
-            return redirect('ver_venta', venta_id=nueva_venta.id)
-            
-        except Exception as e:
-            messages.error(request, f'Error al procesar la venta: {str(e)}')
-            return redirect('crear_venta')
-    
-    # GET request
-    context = {
-        'clientes': Cliente.objects.all(),
-        'productos': Producto.objects.filter(cantidad__gt=0),
-        
-    }
-    return render(request, 'entidad/crear_venta.html', context)
+       
+        for i, producto_id in enumerate(productos):
+            producto = Producto.objects.get(id=producto_id)
+            cantidad = int(cantidades[i])
+            subtotal = producto.precio * cantidad
 
-@login_required
-def ver_venta(request, venta_id):
-    try:
-    venta = Venta.objects.get(id=venta_id)
-    detalle_venta = DetalleVenta.objects.get(venta=venta)
-    productos = DetalleVentaXProducto.objects.filter(detalle_venta=detalle_venta)
-        
-        context = {
-            'venta': venta,
-            'detalle_venta': detalle_venta,
+            
+            DetalleVentaXProducto.objects.create(
+                detalle_venta=detalle_venta,
+                producto=producto,
+                cantidad=cantidad
+            )
+
+       
+        caja.saldo_total += total_venta_conDes
+        caja.save()
+
+        MovimientoCaja.objects.create(
+            caja=caja,
+            empleado= empleado,
+            tipo='VENTA',
+            cantidad=total_venta_conDes
+        )
+        return redirect('crear_venta')
+        venta_exitosa=True
+    else:
+       
+        clientes = Cliente.objects.all()
+        productos = Producto.objects.all()
+
+        return render(request, 'entidad/crear_venta.html', {
+            'clientes': clientes,
             'productos': productos,
-        }
-        return render(request, 'entidad/ver_venta.html', context)
-    except Venta.DoesNotExist:
-        messages.error(request, 'Venta no encontrada')
-        return redirect('lista_ventas')
+            'venta_exitosa':venta_exitosa
+        })
 
-@login_required
-def descargar_pdf_venta(request, venta_id):
-    try:
-        venta = Venta.objects.get(id=venta_id)
-        
-        if not venta.pdf_path:
-            # Si no existe el PDF, regenerarlo
-            detalle_venta = DetalleVenta.objects.get(venta=venta)
-            productos = DetalleVentaXProducto.objects.filter(detalle_venta=detalle_venta)
-            
-            template = get_template('entidad/detalle_venta_pdf.html')
-            context = {
-                'venta': venta,
-                'detalle_venta': detalle_venta,
-                'productos': productos,
-            }
-            
-            html = template.render(context)
-            filename = f'venta_{venta.id}.pdf'
-            pdf_path = guardar_pdf(html, filename)
-            
-            venta.pdf_path = pdf_path
-            venta.save()
-        
-        # Devolver el PDF
-        filepath = os.path.join(settings.MEDIA_ROOT, venta.pdf_path)
-        if os.path.exists(filepath):
-            with open(filepath, 'rb') as pdf:
-                response = HttpResponse(pdf.read(), content_type='application/pdf')
-                response['Content-Disposition'] = f'attachment; filename="venta_{venta_id}.pdf"'
-                return response
-                
-        messages.error(request, 'PDF no encontrado')
-    except Venta.DoesNotExist:
-        messages.error(request, 'Venta no encontrada')
-    except Exception as e:
-        messages.error(request, f'Error al descargar el PDF: {str(e)}')
-    
-    return redirect('ver_venta', venta_id=venta_id)
+
 
     
 @login_required
@@ -682,12 +699,17 @@ def ventas_clientes(request, pk):
 
 
 
-#PROVANDO LOGIN 
+#PROBANDO LOGIN 
 
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.models import User, Group
 from .forms import CustomUserCreationForm
+
+
+def usuarios(request):
+    usuarios_list= User.objects.filter(is_active=True).exclude(username='admin')
+    return render(request, 'login/usuarios.html', {'usuarios': usuarios_list})
 
 
 @login_required
@@ -699,7 +721,7 @@ def nuevo_usuario(request):
         username = request.POST['username']
         form = CustomUserCreationForm(request.POST)
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists')
+            messages.error(request, 'Usuario ya existente!')
         elif form.is_valid():
             user = form.save(commit=False)
             user.first_name = form.cleaned_data.get('first_name')
@@ -709,7 +731,7 @@ def nuevo_usuario(request):
             # Asignar el grupo de permisos
             group = form.cleaned_data.get('group')
             user.groups.add(group)
-            messages.success(request, 'Account created successfully')
+            messages.success(request, 'Cuenta creada correctamente')
             return redirect('home')
         else:
             messages.error(request, 'Please correct the errors below')
@@ -797,12 +819,3 @@ def productos_mas_vendidos(request):
 def opciones(request):
     return render(request, 'entidad/opciones.html')
 
-def home(request):
-    # Obtener productos con stock bajo (menos de 6 unidades)
-    productos_stock_bajo = Producto.objects.filter(cantidad__lte=5).order_by('cantidad')
-    
-    context = {
-        'productos_stock_bajo': productos_stock_bajo,
-        
-    }
-    return render(request, 'home.html', context) 

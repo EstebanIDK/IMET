@@ -39,10 +39,10 @@ urlpatterns = [
 
     path('ventas/', views.ventasactual, name='ventasactual'),
 
-    #VENTA PRUEBA CHAT
     path('ventas/nueva/', views.crear_venta, name='crear_venta'),
-    path('venta/<int:venta_id>/', views.ver_venta, name='ver_venta'),
-    path('venta/<int:venta_id>/pdf/', views.descargar_pdf_venta, name='descargar_pdf_venta'),
+    path('detalle_venta_pdf/<int:pk>/', views.detalle_venta_pdf, name='detalle_venta_pdf'),
+
+
     # CLIENTES
     path("clientes", views.clientes, name="clientes"),
     path('nuevo_cliente/', views.nuevo_cliente, name="nuevo_cliente"),
@@ -51,6 +51,7 @@ urlpatterns = [
     path('ventas_clientes/<int:pk>/ventas', views.ventas_clientes, name='ventas_clientes'),
 
     #PRUEVA LOGIN
+    path("usuarios/", views.usuarios, name='usuarios'),
     path("nuevo_usuario/", views.nuevo_usuario, name='nuevo_usuario'),
     path("login/", views.user_login, name="login"),
     path("logout/", views.login_logout, name='logout'),

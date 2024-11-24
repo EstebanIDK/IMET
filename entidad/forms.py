@@ -27,12 +27,12 @@ class ProductoForm(forms.ModelForm):
 class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
-        fields= '__all__'
+        fields= ('nombre',)
 
 class ProveedorProductoForm(forms.ModelForm):
     class Meta:
         model = ProveedorProducto
-        fields = '__all__'
+        fields = ('nombre', 'telefono')
 
 class AperturaCajaForm(forms.Form):
     monto_inicial=forms.DecimalField(max_digits=10, decimal_places=2, required=True)
@@ -69,10 +69,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 
 class CustomUserCreationForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
-    email = forms.EmailField(required=True)
-    group = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
+    first_name = forms.CharField(label='Nombre', max_length=30, required=True)
+    last_name = forms.CharField(label='Apellido', max_length=30, required=True)
+    email = forms.EmailField(label='Correo Electrónico', required=True)
+    group = forms.ModelChoiceField(label='Tipo de usuario', queryset=Group.objects.all(), required=True)
 
     class Meta:
         model = User
