@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h1-pueva">{{ tipo }} Proveedor{{ dato }}</h1>
+
+<div class="form-container">
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="input-group">
+            {{ form.as_p }}
+        </div>
+        <div class="form-actions">
+            <a href="{% url 'proveedores_productos' %}" class="btn-prueva">Volver</a>
+            <button type="submit" value="Guardar" class="btn-prueva2">Guardar</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+
+<!-- Modal para agregar nuevo proveedor -->
+{% comment %} <div class="modal fade" id="nuevoProveedorModal" tabindex="-1" aria-labelledby="nuevoProveedorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nuevoProveedorModalLabel">Agregar Nuevo Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'nuevo_proveedor_producto' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="proveedor-nombre">Nombre del Proveedor</label>
+                        <input type="text" id="proveedor-nombre" name="nombre" class="form-control" placeholder="Ingrese el nombre del proveedor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="proveedor-telefono">Número de Teléfono</label>
+                        <input type="tel" id="proveedor-telefono" name="telefono" class="form-control" placeholder="Ingrese el número de teléfono" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar Proveedor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}

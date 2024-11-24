@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="categories-title">REGISTRO DE CAJAS</h1>
+
+
+<table class="table-custom">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>EMPLEADO</th>
+            <th>FECHA DE APERTURA</th>
+            <th>MONTO INICIAL</th>
+            <th>TOTAL INGRESADO</th>
+            <th>TOTAL RETIRADO</th>
+            <th>SALDO TOTAL</th>
+            <th>ACTIVO</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for caja in cajas %}
+            <tr>
+                <td>{{ caja.id }}</td>
+                <td>{{ caja.empleado }}</td>
+                <td>{{ caja.fecha_apertura }}</td>
+                <td>{{ caja.monto_inicial }}</td>
+                <td>{{ caja.total_ingresado }}</td>
+                <td>{{ caja.total_egresado }}</td>
+                <td>{{ caja.saldo_total }}</td>
+                <td>{{ caja.activo }}</td>
+                
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3">No hay categorías disponibles.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
