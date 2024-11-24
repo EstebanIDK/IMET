@@ -1,0 +1,364 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background-color: #1e1f26;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1600px;
+    margin: 20px auto;
+    gap: 24px;
+    padding: 0 20px;
+}
+
+.left-section {
+    flex: 0 0 600px;
+}
+
+.summary-container {
+    background-color: #2a2a3a;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 24px;
+    margin: 0;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.subtitle {
+    color: white;
+    font-size: 14px;
+    margin: 4px 0 20px 0;
+    opacity: 0.8;
+}
+
+.info-group {
+    margin: 25px 0;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.info-label {
+    color: white;
+    font-size: 15px;
+}
+
+.info-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.button {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.button-green {
+    background-color: #4CAF50;
+}
+
+.button-red {
+    background-color: #ef4444;
+}
+
+.button-orange {
+    background-color: #f59e0b;
+}
+
+/* Sección de métodos de pago actualizada */
+.payment-container {
+    background-color: #2a2a3a;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.payment-title {
+    color: #7a7b86;
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    font-weight: 500;
+    grid-column: 1 / -1;
+}
+
+.payment-item {
+    background-color: #2a2a3a;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.payment-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    transition: transform 0.2s;
+}
+
+.payment-icon.efectivo {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+.payment-icon.tarjeta {
+    background-color: rgba(33, 150, 243, 0.2);
+}
+
+.payment-icon.transferencia {
+    background-color: rgba(156, 39, 176, 0.2);
+}
+
+.payment-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.payment-name {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.payment-amount {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Sección de historial */
+.history-container {
+    background-color: #2a2a3a;
+    padding: 24px;
+    border-radius: 12px;
+    flex: 1;
+    height: 750px;
+    max-height: 750px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.timeline {
+    position: relative;
+    margin: 20px 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    max-height: calc(100% - 120px);
+}
+
+.timeline::-webkit-scrollbar {
+    width: 6px;
+}
+
+.timeline::-webkit-scrollbar-track {
+    background: #1e1f26;
+    border-radius: 4px;
+}
+
+.timeline::-webkit-scrollbar-thumb {
+    background: #2d2e3a;
+    border-radius: 4px;
+}
+
+.timeline::-webkit-scrollbar-thumb:hover {
+    background: #3d3e4a;
+}
+
+.timeline-content-wrapper {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.timeline-line {
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #f59e0b;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 30px;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    background: #f59e0b;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.timeline-item:hover .timeline-dot {
+    transform: scale(1.2);
+}
+
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-amount {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.timeline-type {
+    font-size: 13px;
+    color: #7a7b86;
+    text-transform: uppercase;
+}
+
+.final-balance {
+    text-align: right;
+    padding-top: 20px;
+    border-top: 1px solid #2d2e3a;
+    margin-top: auto;
+    background-color: #2a2a3a;
+    position: sticky;
+    bottom: 0;
+}
+
+.balance-label {
+    color: #7a7b86;
+    font-size: 14px;
+    margin: 0;
+}
+
+.balance-amount {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 8px 0 20px 0;
+    color: #ffffff;
+}
+
+/* Estilos del modal */
+.modal-content {
+    background-color: #22232d;
+    color: #ffffff;
+    border: 1px solid #2d2e3a;
+    border-radius: 12px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #2d2e3a;
+    padding: 20px;
+}
+
+.modal-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #7a7b86;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e1f26;
+    border: 1px solid #2d2e3a;
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.form-actions {
+    margin-top: 24px;
+    text-align: right;
+}
+
+/* Diseño responsivo */
+@media (max-width: 1400px) {
+    .left-section {
+        flex: 0 0 500px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .payment-methods {
+        grid-template-columns: 1fr;
+    }
+}
+

@@ -1,6 +1,16 @@
 {% extends "base.html" %}
-{% block content %}
 {% load widget_tweaks %}
+{%load static%}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'css/categorias_form.css' %}">
+    
+</head>
 <h1 class="h1-prueva">{{ tipo }} categoría {{ dato }}</h1>
 
 <div class="form-container">
@@ -17,6 +27,12 @@
         <button type="submit" value="Grabar" class="btn-prueva2">Guardar</button>
       </div>
     </form>
+    {% comment %} #MENSAJES DE VALIDACIONES! {% endcomment %}
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
 

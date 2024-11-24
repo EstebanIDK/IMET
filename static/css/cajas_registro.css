@@ -1,0 +1,89 @@
+.categories-title {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.table-custom {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.table-custom thead th {
+    background-color: #343a40;
+    color: white;
+    text-align: left;
+    padding: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.table-custom tbody tr {
+    background-color: #2c2c2c;
+    transition: all 0.3s ease;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #3c3c3c;
+}
+
+.table-custom td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #ffffff;
+}
+
+/* Estilos para el botón VER */
+.btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background-color: #495057;
+}
+
+/* Estilos para los valores monetarios */
+.table-custom td:nth-child(4),
+.table-custom td:nth-child(5),
+.table-custom td:nth-child(6),
+.table-custom td:nth-child(7) {
+    text-align: right;
+    font-family: monospace;
+    font-size: 0.95em;
+}
+
+/* Estilos para el estado activo */
+.table-custom td:nth-child(8) {
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Estilos para la columna de opciones */
+.table-custom td:last-child {
+    text-align: center;
+    width: 100px;
+}
+
+@media (max-width: 768px) {
+    .categories-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .table-custom td,
+    .table-custom th {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+}

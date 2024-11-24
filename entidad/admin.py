@@ -10,7 +10,5 @@ admin.site.register(Producto)
 admin.site.register(Caja)
 admin.site.register(Venta)
 admin.site.register(DetalleVenta)
-admin.site.register(ProveedorServicio)
-admin.site.register(Servicio)
 admin.site.register(DetalleVentaXProducto)
 

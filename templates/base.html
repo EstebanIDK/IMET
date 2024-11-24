@@ -1,30 +1,36 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}IMET | FERRETERIA{% endblock %}</title>
-    
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
     <!-- CSS personalizado -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    
+
     <!-- CSS de DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
-  
+
     <!-- CSS de Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
+
     <!-- CSS de Select2 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="{% static 'js/script.js' %}"></script>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <div class="sidebar close">
         <div class="logo-details">
@@ -57,7 +63,9 @@
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Caja</a></li>
                     <li><a href="{% url 'caja' %}">Caja actual</a></li>
+                    {% if perms.auth.add_caja %}
                     <li><a href="{% url 'cajas' %}">Registro cajas</a></li>
+                    {% endif %}
                 </ul>
             </li>
             <li>
@@ -71,10 +79,10 @@
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Ventas</a></li>
                     <li><a href="{% url 'crear_venta' %}">Nueva venta</a></li>
-                    <li><a href="#">Registro ventas</a></li>
+                    <li><a href="{% url 'ventasactual' %}">Registro ventas</a></li>
                 </ul>
             </li>
-            <!-- Más navegación... -->
+
             <li>
                 <div class="iocn-link">
                     <a href="#">
@@ -93,36 +101,44 @@
             <li>
                 <div class="iocn-link">
                     <a href="#">
-                        <i class='bx bxs-user'></i>
+                        <i class='bx bxs-user-detail' style='color:#ffffff'  ></i>
                         <span class="link_name">Clientes</span>
                     </a>
                     <i class='bx bxs-chevron-down arrow'></i>
                 </div>
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Clientes</a></li>
-                    <li><a href="#">Cargar cliente</a></li>
-                    <li><a href="#">Lista de clientes</a></li>
+                    <li><a href="{% url 'clientes' %}">Lista de clientes</a></li>
                 </ul>
             </li>
             <li>
+                {% if perms.auth.add_user %}
                 <a href="#">
                     <i class='bx bx-cog'></i>
                     <span class="link_name">Opciones</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" href="#">Opciones</a></li>
+                    <li><a class="link_name" href="{% url 'opciones' %}">Opciones</a></li>
                 </ul>
+                {% endif %}
             </li>
             <li>
                 <div class="profile-details">
                     <div class="profile-content">
-                        <img src="{% static 'img/profile.jpg' %}" alt="profileImg">
+                        <i class='bx bxs-user'></i>
                     </div>
                     <div class="name-job">
-                        <div class="profile_name">Esteban</div>
-                        <div class="job">Empleado</div>
+                        <div class="profile_name">{{ user.get_username|upper}}</div>
+                        <div class="job">{{ user.get_group|upper}}</div>
                     </div>
-                    <i class='bx bx-log-out'></i>
+
+
+                    <a href="{% url 'logout' %}">
+                        <i class='bx bx-log-out'></i>
+                    </a>
+
+
+
                 </div>
             </li>
         </ul>
@@ -148,21 +164,21 @@
 
     <!-- Scripts de DataTables -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Función para inicializar o reinicializar una tabla
             function initializeDataTable(selector, config) {
                 var table = $(selector);
-                
+
                 if ($.fn.DataTable.isDataTable(table)) {
                     table.DataTable().destroy();
                     table.empty();
                 }
-        
-                setTimeout(function() {
+
+                setTimeout(function () {
                     table.DataTable(config);
                 }, 100);
             }
-        
+
             // Configuración común
             var commonConfig = {
                 language: {
@@ -177,9 +193,9 @@
                 destroy: true,
                 responsive: true
             };
-        
-            // Inicialización para todas las tablas con la clase 'table-custom' (excluyendo las específicas)
-            $('.table-custom:not(#tabla-categorias):not(#tabla-proveedores)').each(function() {
+
+            // tablas con la clase 'table-custom'
+            $('.table-custom:not(#tabla-categorias):not(#tabla-proveedores)').each(function () {
                 initializeDataTable(this, {
                     ...commonConfig,
                     columnDefs: [
@@ -188,60 +204,44 @@
                     ]
                 });
             });
-        
-            // Inicialización específica para la tabla de categorías
+
+            // tabla de categorías
             initializeDataTable('#tabla-categorias', {
                 ...commonConfig,
                 columnDefs: [
                     { targets: [0], searchable: true, orderable: true },
-                    { targets: [1, 2], searchable: false, orderable: false }
+                    { targets: [1], searchable: false, orderable: false }
                 ]
             });
-        
-            // Inicialización específica para la tabla de proveedores
-            initializeDataTable('#tabla-proveedores', {
+
+            // tabla de proveedores
+            initializeDataTable('#table-custom', {
                 ...commonConfig,
-                columns: [
-                    { data: 'id' },
-                    { data: 'nombre' },
-                    { data: 'telefono' },
-                    { 
-                        data: null,
-                        render: function(data, type, row) {
-                            return '<a href="/modificar_proveedor_producto/' + row.id + '" class="btn-modificar"><i class="bx bx-edit-alt"></i></a>';
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return '<a href="#" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal' + row.id + '" class="btn-eliminar"><i class="bx bx-trash"></i></a>';
-                        }
-                    }
-                ],
                 columnDefs: [
-                    { targets: [0, 1], searchable: true, orderable: true },
-                    { targets: [2], searchable: true, orderable: false }, // Teléfono searchable pero no orderable
-                    { targets: [3, 4], searchable: false, orderable: false }
-            ],
-                order: [[0, 'asc']]  // Ordena por la columna ID de forma ascendente por defecto
+                    { targets: [0, 1], searchable: true, orderable: true },  // ID y Nombre
+                    { targets: [2], searchable: true, orderable: false },  // Teléfono es buscable, no ordenable
+                    { targets: [3], searchable: false, orderable: false }  // Acciones son no buscables y no ordenables
+                ]
+
             });
+
         });
-        
+
     </script>
 
     <!-- Inicialización de Select2 con checkboxes -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#proveedor-select').select2({
                 placeholder: 'Seleccionar proveedor/es',
                 allowClear: true,
                 closeOnSelect: false,
-                templateResult: formatState,  
+                templateResult: formatState,
                 templateSelection: formatSelection,
-                width: '100%'  
+                width: '100%'
             });
 
-            
+
             function formatState(state) {
                 if (!state.id) {
                     return state.text;
@@ -250,7 +250,7 @@
                 return $state;
             }
 
-            
+
             function formatSelection(state) {
                 return state.text;
             }
@@ -259,4 +259,5 @@
 
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

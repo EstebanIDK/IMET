@@ -10,6 +10,11 @@
           <button type="submit" value="Grabar" class="btn-save">Guardar</button>
         </div>
       </form>
+      <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
     </div>
   </div>
 {% endblock %}

@@ -24,7 +24,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-/* Estilos de formulario */
 .form-group {
     margin-bottom: 15px;
 }
@@ -79,7 +78,7 @@ label {
     background-color: #d32f2f;
 }
 
-/* Estilos de tabla */
+
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -132,4 +131,14 @@ label {
     background-color: #2a2a3a;
     color: #e0e0e0;
     border: 1px solid #3a3a4a;
+}
+
+.quitar-btn {
+    display: inline-block;
+    background-color: red;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
 }

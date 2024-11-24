@@ -35,39 +35,45 @@ class ProveedorProductoForm(forms.ModelForm):
         fields = '__all__'
 
 class AperturaCajaForm(forms.Form):
-    monto_inicial=forms.DecimalField(max_digits=10,decimal_places=2)
+    monto_inicial=forms.DecimalField(max_digits=10, decimal_places=2, required=True)
     
 
 class IngresarDineroForm(forms.Form):
     tipo = forms.ChoiceField(choices=[('INGRESO', 'Ingreso')])
-    cantidad=forms.DecimalField(max_digits=10,decimal_places=2)
+    cantidad=forms.DecimalField(max_digits=10,decimal_places=2, min_value=0, required=True)
     descripcion = forms.CharField(widget=forms.Textarea, required=False, label="Descripción")
 
 class RetirarDineroForm(forms.Form):
     tipo = forms.ChoiceField(choices=[('RETIRO', 'Retiro')])
-    cantidad=forms.DecimalField(max_digits=10,decimal_places=2)
+    cantidad=forms.DecimalField(max_digits=10,decimal_places=2, min_value=0, required=True)
     descripcion = forms.CharField(widget=forms.Textarea, required=False, label="Descripción")
 
-#VENTA PRUEBA CHAT
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model= Cliente
+        fields= '__all__'
+        labels = {
+            'dni': 'DNI',
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'correo': 'Correo Electrónico',
+            'telefono': 'Teléfono',
+            'activo': 'Activo',
+        }
+
+
+#provando formulario de registro
+
 from django import forms
-from .models import Venta, DetalleVenta, DetalleVentaXProducto
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User, Group
 
-class VentaForm(forms.ModelForm):
+class CustomUserCreationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(required=True)
+    group = forms.ModelChoiceField(queryset=Group.objects.all(), required=True)
+
     class Meta:
-        model = Venta
-        fields = ['cliente', 'forma_pago']
-
-class DetalleVentaForm(forms.ModelForm):
-    class Meta:
-        model = DetalleVenta
-        fields = ['cantidad']
-
-class DetalleVentaXProductoForm(forms.Form):
-    productos = forms.ModelMultipleChoiceField(
-        queryset=Producto.objects.all(),
-        widget=forms.CheckboxSelectMultiple,  # Puedes usar otro widget si prefieres algo diferente
-        label="Productos"
-    )
-    cantidad = forms.IntegerField(min_value=1, label="Cantidad por producto")
-
-
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'group')

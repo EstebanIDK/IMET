@@ -81,25 +81,29 @@ class Caja(models.Model):
     empleado= models.ForeignKey(User, on_delete=models.CASCADE)
     fecha_apertura= models.DateTimeField(auto_now_add=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
-    monto_inicial= models.DecimalField(max_digits=10, decimal_places=2,default=0)
-    total_ingresado= models.DecimalField(max_digits=10, decimal_places=2,default=0)
-    total_egresado= models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    monto_inicial= models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_ingresado= models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_egresado= models.DecimalField(max_digits=10, decimal_places=2, default=0)
     saldo_total= models.DecimalField(max_digits=10, decimal_places=2)
     activo= models.BooleanField(default=False)
+
     class Meta:
-        verbose_name = ("Caja")
-        verbose_name_plural = ("Cajas")
+        verbose_name = "Caja"
+        verbose_name_plural = "Cajas"
 
     def __str__(self):
         return f"{self.empleado.username} {self.fecha_apertura}"
+
 
 class MovimientoCaja(models.Model):
     TIPO_MOVIMIENTO = [
         ('INGRESO', 'Ingreso'),
         ('RETIRO', 'Retiro'),
+        ('VENTA', 'Venta')
     ]
 
     caja = models.ForeignKey(Caja, on_delete=models.CASCADE, related_name="movimientos")
+    empleado= models.ForeignKey(User, on_delete=models.CASCADE)
     tipo = models.CharField(max_length=7, choices=TIPO_MOVIMIENTO)
     cantidad = models.DecimalField(max_digits=10, decimal_places=2)
     fecha = models.DateTimeField(auto_now_add=True)
@@ -116,6 +120,9 @@ class Venta(models.Model):
     total= models.DecimalField(max_digits=10, decimal_places=2)
     estado= models.CharField(max_length=4, choices=ESTADOS_CHOICES, default="NOP")
     forma_pago = models.CharField(max_length=100,choices=METODO_PAGO_CHOICE, default="EFEC")
+    descuento= models.DecimalField(max_digits=10, default=0, decimal_places=2)
+    pdf_path = models.CharField(max_length=255, null=True, blank=True)
+
     class Meta:
         verbose_name = ("Venta")
         verbose_name_plural = ("Ventas")
@@ -138,7 +145,7 @@ class DetalleVenta(models.Model):
     
 class DetalleVentaXProducto(models.Model):
     detalle_venta = models.ForeignKey(DetalleVenta, on_delete=models.CASCADE)
-    productos = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad= models.IntegerField(default=0)
     # AGREGAR SUBTOTAL OPCIONAL
 
@@ -149,35 +156,6 @@ class DetalleVentaXProducto(models.Model):
     
     def __str__(self):
         return f"{self.detalle_venta} {self.productos} {self.cantidad}"
-
-
-class ProveedorServicio(models.Model):
-    nombre= models.CharField(max_length=30)
-    telefono= models.CharField(max_length=10)
-    tipo_de_servicio= models.CharField(max_length=30)
-
-    class Meta:
-        verbose_name = ("Proveedor de servicio")
-        verbose_name_plural = ("Proveedores de servicios")
-
-    def __str__(self):
-        return f"{self.nombre}"
-
-class Servicio(models.Model):
-    caja= models.ForeignKey(Caja, on_delete=models.PROTECT)
-    proveedor= models.ForeignKey(ProveedorServicio, on_delete=models.PROTECT)
-    monto= models.DecimalField(max_digits=10, decimal_places=2)
-    fecha_vencimiento= models.DateField()
-    fecha_pagado= models.DateTimeField(null=True, blank=True)
-    estado= models.CharField(max_length=4, choices=ESTADOS_CHOICES, default="NOP")
-    factura= models.CharField(max_length=20)
-
-    class Meta:
-        verbose_name = ("Servicio")
-        verbose_name_plural = ("Servicios")
-
-    def __str__(self):
-        return f"{self.factura} {self.proveedor} {self.estado}"
 
 
 

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - IMET Ferretería</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #FFA500 50%, black 50%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            width: 800px;
+            background: white;
+            border-radius: 10px;
+            border: 3px solid #ffa600;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .left-section {
+            background: black;
+            border-radius: 10px 0 0 10px;
+            width: 40%;
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo-container {
+            text-align: center;
+        }
+
+        .logo-text {
+            font-weight: bold;
+        }
+
+        .imet {
+            color: #ffa600;
+            font-size: 48px;
+        }
+
+        .imet .blank {
+            color: white;
+        }
+
+        .ferreteria {
+            color: white;
+            font-size: 24px;
+        }
+
+        .line {
+            background-color: #ffa600;
+            height: 15px;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .right-section {
+            width: 60%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .right-section .avatar {
+            background: #E0E0E0;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .right-section form {
+            width: 100%;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #CCC;
+            border-radius: 5px;
+            outline: none;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .right-section .btn {
+            width: calc(100% - 20px);
+            padding: 10px;
+            background: #ffa600;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .right-section .btn:hover {
+            background: #ffa600;
+        }
+
+        .right-section .forgot-password {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .right-section .forgot-password a {
+            color: #FFA500;
+            text-decoration: none;
+        }
+
+        .right-section .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <div class="logo-container">
+                <div class="line"></div>
+                <div class="logo-text imet">
+                    I<span class="blank">M</span><span class="blank">E</span><span class="blank">T</span>
+                </div>
+                <div class="line"></div>
+                <div class="logo-text ferreteria">FERRETERIA</div>
+            </div>
+        </div>
+        <div class="right-section">
+            <div class="avatar">
+                <span>👤</span>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Iniciar sesión</button>
+            </form>
+            <div class="messages">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

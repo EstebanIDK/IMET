@@ -1,14 +1,30 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clientes</title>
+    <link rel="stylesheet" href="{% static 'css/proveedores_productos.css' %}">
+</head>
 <h1 class="h1-pueva">Lista de Proveedores</h1>
-<table id="tabla-proveedores" class="table-custom">
+
+<div class="messages">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
+
+<table  class="table-custom">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>NOMBRE</th>
-            <th>TELÉFONO</th>
-            <th>Modificar</th>
-            <th>Eliminar</th>
+            <th class="id-column">ID</th>
+            <th class="nombre-column">NOMBRE</th>
+            <th class="telefono-column">TELÉFONO</th>
+            {% if perms.auth.add_caja %}
+            <th class="actions-column">ACCIONES</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -18,49 +34,31 @@
                 <td>{{ proveedor.nombre }}</td>
                 <td>{{ proveedor.telefono }}</td>
                 <td>
-                    <a href="{% url 'modificar_proveedor_producto' proveedor.id %}" class="btn-modificar">
-                        <i class='bx bx-edit-alt'></i>
-                    </a>
-                </td>
-                <td>
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{  proveedor.id }}" class="btn-eliminar">
-                        <i class='bx bx-trash'></i>
-                    </a>
-                    
-                    <!-- Modal único para cada proveedor -->
-                    <div class="modal fade" id="confirmDeleteModal{{ proveedor.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel{{ proveedor.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="confirmDeleteModalLabel{{ proveedor.id }}">Confirmar eliminación</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>¿Estás seguro de que deseas eliminar "{{ proveedor.nombre }}"?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <form method="POST" action="{% url 'eliminar_proveedor_producto' proveedor.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                </div>
-                            </div>
-                        </div>
+                    {% if perms.auth.add_caja %}
+                    <div class="actions-container">
+                        <a href="{% url 'modificar_proveedor_producto' proveedor.id %}" class="action-btn edit-btn">
+                            <i class='bx bx-edit-alt'></i>
+                        </a>
+                        <a href="{% url 'eliminar_proveedor_producto' proveedor.id %}" class="action-btn delete-btn">
+                            <i class='bx bx-trash'></i>
+                        </a>
                     </div>
+                    {% endif %}
                 </td>
             </tr>
         {% empty %}
             <tr>
-                <td colspan="5">No hay proveedores disponibles.</td>
+                <td colspan="4">No hay proveedores disponibles.</td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
+{% if perms.auth.add_caja %}
 <div class="btn-container">
     <a href="{% url 'nuevo_proveedor_producto' %}">
-        <button class="btn-add-category" type="submit">AÑADIR NUEVO PROVEEDOR</button>
+        <button class="btn-add-category" type="submit">Añadir nuevo proveedor</button>
     </a>
 </div>
+{% endif %}
 
 {% endblock %}

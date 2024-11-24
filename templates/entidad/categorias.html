@@ -4,70 +4,57 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Productos</title>
+    <title>Categorias</title>
     <link rel="stylesheet" href="{% static 'css/categorias_tabla.css' %}">
 </head>
 <h1 class="categories-title">Categorías</h1>
 
+<div class="messages">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
 
 <table id="tabla-categorias" class="table-custom">
     <thead>
         <tr>
-            <th>Nombre</th>
-            <th>Modificar</th>
-            <th>Eliminar</th>
+            <th class="column-nombre">Nombre</th>
+            {% if perms.auth.delete_categoria %}
+            <th class="column-acciones">Acciones</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
         {% for categoria in categorias %}
-            <tr>
-                <td>{{ categoria.nombre }}</td>
-                <td>
-                    <a href="{% url 'modificar_categoria' categoria.id %}" class="icon-container icon-edit">
-                        <i class='bx bx-edit-alt'></i>
-                    </a>
-                </td>
-                <td>
-                    <a data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{  categoria.id }}" class="icon-container icon-delete">
-                        <i class='bx bx-trash'></i>
-                    </a>
-                    
-                    <!-- Modal único para cada categoría -->
-                    <div class="modal" id="confirmDeleteModal{{ categoria.id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Confirmar eliminación</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>¿Estás seguro de que deseas eliminar "{{ categoria.nombre }}"?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <form method="POST" action="{% url 'eliminar_categoria' categoria.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
+        <tr>
+            <td class="column-nombre">{{ categoria.nombre }}</td>
+            <td class="column-acciones actions-column">
+                {% if perms.auth.delete_categoria %}
+                <a href="{% url 'modificar_categoria' categoria.id %}" class="icon-container icon-edit">
+                    <i class='bx bx-edit-alt'></i>
+                </a>
+                <a href="{% url 'eliminar_categoria' categoria.id %}" class="icon-container icon-delete">
+                    <i class='bx bx-trash'></i>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
         {% empty %}
-            <tr>
-                <td colspan="3">No hay categorías disponibles.</td>
-            </tr>
+        <tr>
+            <td colspan="2">No hay categorías disponibles.</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
 <br>
+{% if perms.auth.add_caja %}
 <a href="{% url 'nueva_categoria' %}" class="btn-add-category">
     <i class='bx bx-plus-circle'></i> AÑADIR NUEVA CATEGORÍA
 </a>
+{% endif %}
 
 {% endblock %}

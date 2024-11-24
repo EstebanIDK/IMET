@@ -1,128 +1,139 @@
 {% extends "base.html" %}
+{% load static%}
 {% load widget_tweaks %}
+
 {% block content %}
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #1c1c2e;
-        color: #ffffff;
-        margin: 0;
-        padding: 0;
-    }
-    .container {
-        background-color: #252543;
-        padding: 20px;
-        max-width: 400px;
-        margin: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-    }
-    h1 {
-        font-size: 20px;
-        margin-bottom: 15px;
-        color: #ffffff;
-    }
-    p {
-        margin: 5px 0;
-        font-size: 14px;
-        color: #a0a0a0;
-    }
-    .buttons {
-        display: flex;
-        justify-content: flex-start;
-        margin-top: 20px;
-        gap: 10px;
-    }
-    .button {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 5px;
-        color: white;
-        font-size: 12px;
-        cursor: pointer;
-        text-decoration: none;
-        text-align: center;
-        min-width: 100px;
-    }
-    .button-green {
-        background-color: #4CAF50;
-    }
-    .button-red {
-        background-color: #f44336;
-    }
-    .button-orange {
-        background-color: #FFA500;
-    }
-</style>
-<div class="container">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caja</title>
+    <link rel="stylesheet" href="{% static 'css/caja.css' %}">
+</head>
+
+<div class="main-container">
     {% if caja_activa %}
-        <h1>Estado de la caja: {{ caja_activa.id }}</h1>
-        <p>Monto inicial: ${{ caja_activa.monto_inicial }}</p>
-        <p>Saldo total: ${{ caja_activa.saldo_total }}</p>
-        <p>Total Ingresado: ${{ caja_activa.total_ingresado }}</p>
-        <p>Total Egresado: ${{ caja_activa.total_egresado }}</p>
+        <div class="left-section">
+            <div class="summary-container">
+                <h1 class="title">Resumen Caja Hoy</h1>
+                <p class="subtitle">Abierto hoy {{ caja_activa.fecha_apertura|date:"H:i" }}</p>
+                
+                <div class="info-group">
+                    <div class="info-row">
+                        <span class="info-label">Monto inicial</span>
+                        <span class="info-value">${{ caja_activa.monto_inicial }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total caja</span>
+                        <span class="info-value">${{ caja_activa.saldo_total }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total ingresado</span>
+                        <span class="info-value">${{ caja_activa.total_ingresado }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total egresado</span>
+                        <span class="info-value">${{ caja_activa.total_egresado }}</span>
+                    </div>
+                </div>
 
-    
-    
-{% comment %} <button  type="button" class="add-btn" data-bs-toggle="modal" data-bs-target="#ingresardinero" style="color:#00ff0df5">ingrsear dinero</button>
-
-
-<div class="modal fade" id="ingresardinero" tabindex="-1" aria-labelledby="ingresarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="ingresarModalLabel" style="color: black;">Agregar monto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="action-buttons">
+                    <button type="button" onclick="abrir_modal_edicion('{% url 'ingresar_dinero' %}')" class="button button-green">
+                        Ingresar dinero
+                    </button>
+                    <button type="button" onclick="abrir_modal_edicion('{% url 'retirar_dinero' %}')" class="button button-red">
+                        Retirar dinero
+                    </button>
+                </div>
             </div>
-            <div class="modal-body">
-                <form method="post" action="{% url 'ingresar_dinero' %}">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="caja-total_ingresado" style="color: black;">Monto</label>
-                        <input type="text" id="caja-total_ingresado" name="total_ingresado" class="form-control" placeholder="Ingrese el monto inicial">
+
+            <!-- Sección de métodos de pago actualizada -->
+            <div class="payment-container">
+                <div class="payment-methods">
+                    <h2 class="payment-title">Métodos de pago</h2>
+                    
+                    <div class="payment-item">
+                        <div class="payment-icon efectivo">💵</div>
+                        <div class="payment-details">
+                            <span class="payment-name">Efectivo</span>
+                            <span class="payment-amount">${{ efectivo }}</span>
+                        </div>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+
+                    <div class="payment-item">
+                        <div class="payment-icon tarjeta">💳</div>
+                        <div class="payment-details">
+                            <span class="payment-name">Tarjeta Crédito</span>
+                            <span class="payment-amount">${{ tarjeta }}</span>
+                        </div>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endcomment %}
-        <div class="buttons">
-            <a href="{% url 'ingresar_dinero' %}" class="button button-green">Ingresar Dinero</a>
-            <a href="{% url 'retirar_dinero' %}" class="button button-red">Retirar Dinero</a>
-            <a href="{% url 'cerrar_caja' %}" class="button button-orange">Cerrar Caja</a>
-        </div>
-    {% else %}
-        <h2>Presione para abrir la Caja</h2>
-        <button type="button" class="button button-green" data-bs-toggle="modal" data-bs-target="#newcaja">Abrir caja</button>
-        
-        <!-- Modal para agregar nueva categoría -->
-        <div class="modal fade" id="newcaja" tabindex="-1" aria-labelledby="newCajaModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="newCajaModalLabel">Agregar monto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="post" action="{% url 'abrir_caja' %}">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label for="caja-monto_inicial">Monto</label>
-                                <input type="text" id="caja-monto_inicial" name="monto_inicial" class="form-control" placeholder="Ingrese el monto inicial">
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Guardar</button>
-                            </div>
-                        </form>
+
+                    <div class="payment-item">
+                        <div class="payment-icon transferencia">🔄</div>
+                        <div class="payment-details">
+                            <span class="payment-name">Transferencia</span>
+                            <span class="payment-amount">${{ transferencia }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="history-container">
+            <div class="header">
+                <p class="subtitle">Historial - {{ caja_activa.fecha_apertura|date:"d/m/y" }}</p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-content-wrapper">
+                    <div class="timeline-line"></div>
+                    {% for movimiento in movimientos %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <span class="timeline-amount">${{ movimiento.cantidad }}</span>
+                                <span class="timeline-type">{{ movimiento.tipo }} | ({{ movimiento.empleado|upper }})</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="final-balance">
+                <p class="balance-label">Saldo final</p>
+                <p class="balance-amount">${{ caja_activa.saldo_total }}</p>
+                {% if perms.auth.add_caja %}
+                <button onclick="abrir_modal_edicion('{% url 'cerrar_caja' %}')" class="button button-orange">Cerrar Caja</button>
+                {% endif %}
+            </div>
+        </div>
+
+    {% else %}
+        {%if perms.auth.add_caja%}
+        <div class="summary-container">
+            <h2 class="title">Presione para abrir la Caja</h2>
+            <button type="button" class="button button-green" onclick="abrir_modal_edicion('{% url 'abrir_caja' %}')">
+                Abrir caja
+            </button>
+        </div>
+        {%else%}
+        <h2 class="title">Por favor pide al administrador abrir una Caja</h2>
+        {% endif %}
     {% endif %}
 </div>
+
+<div class="modal fade" id="edicion" tabindex="-1" aria-labelledby="newCajaModalLabel" aria-hidden="true"></div>
+
 {% endblock %}
 
+{% block extra_js %}
+<script type="text/javascript">
+    var $ = jQuery.noConflict();
+    function abrir_modal_edicion(url) {
+        $('#edicion').load(url, function() {
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock %}

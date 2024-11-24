@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name="home"),
+    path('permiso_denegado', views.permiso_denegado, name="permiso_denegado"),
+    path('opciones/', views.opciones, name="opciones"),
+
     #PRODUCTOS
     path('productos/', views.productos, name="productos"),
     path('nuevo_producto/', views.nuevo_producto, name="nuevo_producto"),
@@ -13,8 +16,6 @@ urlpatterns = [
     #CATEGORIAS
     path('categorias/', views.categorias, name='categorias'),
     path('nueva_categoria/', views.nueva_categoria, name="nueva_categoria"),
-    path('nueva_categoria_2/', views.nueva_categoria_2, name="nueva_categoria_2"),
-
     path('modificar_categoria/<int:pk>', views.modificar_categoria, name="modificar_categoria"),
     path('eliminar_categoria/<int:pk>', views.eliminar_categoria, name="eliminar_categoria"),
 
@@ -36,10 +37,29 @@ urlpatterns = [
     path('caja/<int:pk>/ventas', views.ventas, name='ventas'),
     path('venta/<int:pk>/', views.detalle_venta, name='detalle_venta'),
 
+    path('ventas/', views.ventasactual, name='ventasactual'),
 
     #VENTA PRUEBA CHAT
     path('ventas/nueva/', views.crear_venta, name='crear_venta'),
+    path('venta/<int:venta_id>/', views.ver_venta, name='ver_venta'),
+    path('venta/<int:venta_id>/pdf/', views.descargar_pdf_venta, name='descargar_pdf_venta'),
+    # CLIENTES
+    path("clientes", views.clientes, name="clientes"),
+    path('nuevo_cliente/', views.nuevo_cliente, name="nuevo_cliente"),
+    path("modificar_cliente/<int:pk>",views.modificar_cliente, name="modificar_cliente"),
+    path("eliminar_cliente/<int:pk>",views.eliminar_cliente, name="eliminar_cliente"),
+    path('ventas_clientes/<int:pk>/ventas', views.ventas_clientes, name='ventas_clientes'),
+
+    #PRUEVA LOGIN
+    path("nuevo_usuario/", views.nuevo_usuario, name='nuevo_usuario'),
+    path("login/", views.user_login, name="login"),
+    path("logout/", views.login_logout, name='logout'),
 
 
+    
+    # GRAFICOS
+  
+     path('Grafico_clientes/', views.clientes_mas_ventas, name="clientes_mas_ventas"),
+     path('grafico_productos/', views.productos_mas_vendidos, name='productos_mas_vendidos'),
 
 ]
