@@ -2,7 +2,6 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
-from django.utils.timezone import datetime
 ESTADOS_CHOICES=(
     ("NOP","NO PAGADO"),
     ("PAG", "PAGADO")
@@ -159,19 +158,6 @@ class DetalleVentaXProducto(models.Model):
         return f"{self.detalle_venta} {self.productos} {self.cantidad}"
 
 
-class AccesoUsuario(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    fecha_ingreso = models.DateField(default=datetime.now)
-    hora_ingreso = models.TimeField(default=datetime.now)
-    ip_address = models.CharField(max_length=30)
-    tipo = models.BooleanField(default=False)
-    
-    class Meta:
-        verbose_name = ("Acceso Usuario")
-        verbose_name_plural = ("Accesos Usuarios")
-
-    def __str__(self):
-        return f"{self.usuario} {self.ip_address}"
 
 
 

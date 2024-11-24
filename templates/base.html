@@ -27,7 +27,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 
@@ -111,23 +111,17 @@
                     <li><a href="{% url 'clientes' %}">Lista de clientes</a></li>
                 </ul>
             </li>
-            
             <li>
                 {% if perms.auth.add_user %}
-                <div class="iocn-link">
-                    <a href="#">
-                        <i class='bx bx-group'></i>
-                        <span class="link_name">Usuarios</span>
-                    </a>
-                    <i class='bx bxs-chevron-down arrow'></i>
-                </div>
-                <ul class="sub-menu">
-                    <li><a class="link_name" href="#">Gestión de Usuarios</a></li>
-                    <li><a href="{% url 'usuarios' %}">Lista de Usuarios</a></li>
+                <a href="#">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Opciones</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="{% url 'opciones' %}">Opciones</a></li>
                 </ul>
                 {% endif %}
             </li>
-            
             <li>
                 <div class="profile-details">
                     <div class="profile-content">
@@ -201,7 +195,7 @@
             };
 
             // tablas con la clase 'table-custom'
-            $('.table-custom:not(#tabla-categorias):not(#tabla-proveedores):not(#tabla-productos)').each(function () {
+            $('.table-custom:not(#tabla-categorias):not(#tabla-proveedores)').each(function () {
                 initializeDataTable(this, {
                     ...commonConfig,
                     columnDefs: [
@@ -231,27 +225,12 @@
 
             });
 
-            initializeDataTable('#tabla-productos', {
-                ...commonConfig,
-                columnDefs: [
-                    { targets: [0], searchable: true, orderable: true },
-                    { targets: [1], searchable: true, orderable: true },
-                    { targets: [2], searchable: true, orderable: true },
-                    { targets: [3], searchable: true, orderable: true },
-                    { targets: [4], searchable: true, orderable: true },
-                    { targets: [5], searchable: true, orderable: true },
-                    { targets: [6], searchable: false, orderable: false },
-                ]
-            });
-
         });
 
     </script>
 
-
-        {% comment %} CREO QUE ESTA REPETIDO EN PRODUCTO_FORM {% endcomment %}
     <!-- Inicialización de Select2 con checkboxes -->
-    {% comment %} <script>
+    <script>
         $(document).ready(function () {
             $('#proveedor-select').select2({
                 placeholder: 'Seleccionar proveedor/es',
@@ -276,7 +255,7 @@
                 return state.text;
             }
         });
-    </script> {% endcomment %}
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

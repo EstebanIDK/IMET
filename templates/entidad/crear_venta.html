@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width: 96%;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Venta</title>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/crea_venta.css' %}">
@@ -49,7 +49,11 @@
                         <select id="productos" class="form-control" style="width: 100%;">
                             <option value="">Seleccione un producto...</option>
                             {% for producto in productos %}
-                                <option value="{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.id }} | {{ producto.nombre }} | {{ producto.marca }} | ${{ producto.precio }} | Stock: {{ producto.cantidad }}</option>
+                                <option value="{{ producto.id }}" 
+                                    data-precio="{{ producto.precio }}" 
+                                    data-stock="{{ producto.cantidad }}">
+                                    {{ producto.id }} | {{ producto.nombre }} | {{ producto.marca }} | ${{ producto.precio }} | Stock: {{ producto.cantidad }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -100,73 +104,106 @@
                 allowClear: true
             });
         });
-    
+
         let productosSeleccionados = [];
         let cantidadesSeleccionadas = [];
         let totalVenta = 0;
-    
+
         function agregarProducto() {
             const selectProducto = document.getElementById('productos');
             const cantidadInput = document.getElementById('cantidad');
-    
+
             const productoId = selectProducto.value;
             const cantidad = parseInt(cantidadInput.value);
-    
-            if (productoId && cantidad > 0) {
-                const precio = parseFloat(selectProducto.options[selectProducto.selectedIndex].dataset.precio);
-                const subtotal = precio * cantidad;
-    
+            const stock = parseInt(selectProducto.options[selectProducto.selectedIndex]?.dataset.stock || 0); // Cambiado para manejar el stock
+
+            if (!productoId) {
+                alert("Por favor, seleccione un producto.");
+                return;
+            }
+
+            if (stock === 0) {
+                alert("Este producto no tiene stock disponible.");
+                return;
+            }
+
+            if (cantidad > stock) {
+                alert(`La cantidad solicitada supera el stock disponible (${stock}).`);
+                return;
+            }
+
+            const precio = parseFloat(selectProducto.options[selectProducto.selectedIndex].dataset.precio);
+            let subtotal = precio * cantidad;
+
+            const index = productosSeleccionados.indexOf(productoId);
+            if (index !== -1) {
+                cantidadesSeleccionadas[index] += cantidad;
+                subtotal = precio * cantidadesSeleccionadas[index];
+                const row = document.getElementById('productos-table').rows[index];
+                row.cells[2].innerText = cantidadesSeleccionadas[index];
+                row.cells[4].innerText = `$${subtotal.toFixed(2)}`;
+            } else {
                 productosSeleccionados.push(productoId);
                 cantidadesSeleccionadas.push(cantidad);
-    
+
                 const productosTable = document.getElementById('productos-table');
                 const newRow = productosTable.insertRow();
-    
+
                 newRow.innerHTML = `
-                    <td><span class="quitar-btn" onclick="quitarProducto(this, ${subtotal})">X</span></td>
+                    <td><button class="btn btn-danger btn-sm" onclick="quitarProducto(this, ${subtotal})"><i class="fas fa-trash-alt"></i></button></td>
                     <td>${selectProducto.options[selectProducto.selectedIndex].text}</td>
                     <td>${cantidad}</td>
                     <td>$${precio.toFixed(2)}</td>
                     <td>$${subtotal.toFixed(2)}</td>
                 `;
-    
-                totalVenta += subtotal;
-                actualizarTotalConDescuento();  // Actualizar el total de la venta
-    
-                document.getElementById('productos_json').value = JSON.stringify(productosSeleccionados);
-                document.getElementById('cantidades_json').value = JSON.stringify(cantidadesSeleccionadas);
-    
-                selectProducto.value = "";
-                cantidadInput.value = 1;
-            } else {
-                alert("Por favor, seleccione un producto y una cantidad válida.");
             }
+
+            totalVenta += subtotal;
+            actualizarTotalConDescuento();
+
+            document.getElementById('productos_json').value = JSON.stringify(productosSeleccionados);
+            document.getElementById('cantidades_json').value = JSON.stringify(cantidadesSeleccionadas);
+
+            selectProducto.value = "";
+            cantidadInput.value = 1;
         }
-    
+
         function quitarProducto(button, subtotal) {
             const row = button.parentNode.parentNode;
-            row.parentNode.removeChild(row);
-    
+            const index = row.rowIndex - 1; // Ajustar el índice para productosSeleccionados
+
+            productosSeleccionados.splice(index, 1);
+            cantidadesSeleccionadas.splice(index, 1);
+
             totalVenta -= subtotal;
-            actualizarTotalConDescuento();  // Actualizar el total de la venta
+            actualizarTotalConDescuento();
+
+            row.remove();
         }
-    
+
         function actualizarTotalConDescuento() {
             const descuentoInput = document.getElementById('descuento');
-            const descuento = parseFloat(descuentoInput.value) || 0;  // Descuento por defecto a 0 si no se proporciona
+            const descuento = parseFloat(descuentoInput.value) || 0;
             const totalConDescuento = totalVenta - (totalVenta * (descuento / 100));
             document.getElementById('total-venta').innerText = totalConDescuento.toFixed(2);
         }
-    
+
         document.querySelector("form").addEventListener("submit", function(event) {
-            if (productosSeleccionados.length === 0 || cantidadesSeleccionadas.length === 0) {
+            if (productosSeleccionados.length === 0) {
                 event.preventDefault();
                 alert("No hay productos seleccionados para la venta.");
             }
         });
-    
-        // Escuchar cambios en el campo de descuento y actualizar el total
-        document.getElementById('descuento').addEventListener('input', actualizarTotalConDescuento);
+
+        document.getElementById('descuento').addEventListener('input', function () {
+            const descuento = parseFloat(this.value);
+            if (descuento < 0 || descuento > 100) {
+                alert("El descuento debe estar entre 0 y 100.");
+                this.value = '';
+            } else {
+                actualizarTotalConDescuento();
+            }
+        });
     </script>
 </body>
 
