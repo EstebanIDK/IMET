@@ -2,8 +2,6 @@ from django.contrib import admin
 from entidad.models import *
 # Register your models here.
 
-
-
 admin.site.register(Categoria)
 admin.site.register(Ciudad)
 admin.site.register(Cliente)

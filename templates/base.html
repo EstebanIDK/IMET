@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Proyecto{% endblock %}</title>
+    <title>{% block title %}IMET | FERRETERIA{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -57,7 +57,7 @@
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Caja</a></li>
                     <li><a href="{% url 'caja' %}">Caja actual</a></li>
-                    <li><a href="#">Registro cajas</a></li>
+                    <li><a href="{% url 'cajas' %}">Registro cajas</a></li>
                 </ul>
             </li>
             <li>
@@ -149,7 +149,22 @@
     <!-- Scripts de DataTables -->
     <script>
         $(document).ready(function() {
-            $('.table-custom').DataTable({
+            // Función para inicializar o reinicializar una tabla
+            function initializeDataTable(selector, config) {
+                var table = $(selector);
+                
+                if ($.fn.DataTable.isDataTable(table)) {
+                    table.DataTable().destroy();
+                    table.empty();
+                }
+        
+                setTimeout(function() {
+                    table.DataTable(config);
+                }, 100);
+            }
+        
+            // Configuración común
+            var commonConfig = {
                 language: {
                     url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
                     paginate: {
@@ -157,12 +172,61 @@
                         next: '<i class="bx bx-chevron-right"></i>'
                     }
                 },
+                serverSide: false,
+                processing: true,
+                destroy: true,
+                responsive: true
+            };
+        
+            // Inicialización para todas las tablas con la clase 'table-custom' (excluyendo las específicas)
+            $('.table-custom:not(#tabla-categorias):not(#tabla-proveedores)').each(function() {
+                initializeDataTable(this, {
+                    ...commonConfig,
+                    columnDefs: [
+                        { searchable: false, targets: [2, 4, 6] },
+                        { orderable: false, targets: [1, 2, 4, 6] }
+                    ]
+                });
+            });
+        
+            // Inicialización específica para la tabla de categorías
+            initializeDataTable('#tabla-categorias', {
+                ...commonConfig,
                 columnDefs: [
-                    { searchable: false, targets: [2, 4, 6] },
-                    { orderable: false, targets: [1, 2, 4, 6] }
+                    { targets: [0], searchable: true, orderable: true },
+                    { targets: [1, 2], searchable: false, orderable: false }
                 ]
             });
+        
+            // Inicialización específica para la tabla de proveedores
+            initializeDataTable('#tabla-proveedores', {
+                ...commonConfig,
+                columns: [
+                    { data: 'id' },
+                    { data: 'nombre' },
+                    { data: 'telefono' },
+                    { 
+                        data: null,
+                        render: function(data, type, row) {
+                            return '<a href="/modificar_proveedor_producto/' + row.id + '" class="btn-modificar"><i class="bx bx-edit-alt"></i></a>';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return '<a href="#" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal' + row.id + '" class="btn-eliminar"><i class="bx bx-trash"></i></a>';
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { targets: [0, 1], searchable: true, orderable: true },
+                    { targets: [2], searchable: true, orderable: false }, // Teléfono searchable pero no orderable
+                    { targets: [3, 4], searchable: false, orderable: false }
+            ],
+                order: [[0, 'asc']]  // Ordena por la columna ID de forma ascendente por defecto
+            });
         });
+        
     </script>
 
     <!-- Inicialización de Select2 con checkboxes -->

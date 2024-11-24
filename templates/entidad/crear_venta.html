@@ -1,12 +1,130 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 {% block content %}
-<h2>Registro de Venta</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ venta_form.as_p }}
-    {{ detalle_form.as_p }}
-    {{ detalle_producto_form.as_p }}
-    <button type="submit" class="btn btn-primary">Agregar Venta</button>
-</form>
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Venta</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/crea_venta.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="venta-form">
+            <h2>Registro de Venta</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="cliente">Cliente:</label>
+                    <select id="cliente" class="form-control" style="width: 100%;">
+                        <option value="">Seleccione un cliente...</option>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-8">
+                        <label for="productos">Agregar producto:</label>
+                        <select id="productos" class="form-control" style="width: 100%;">
+                            <option value="">Seleccione un producto...</option>
+                            {% for producto in productos %}
+                                <option value="{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" id="cantidad" class="form-control" placeholder="Cantidad" min="1" value="1">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <button type="button" class="btn btn-primary" onclick="agregarProducto()">Agregar</button>
+                    </div>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Quitar</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productos-table">
+                        <!-- Aquí se agregarán las filas dinámicamente -->
+                    </tbody>
+                </table>
+                <div class="total">Total: $0.00</div>
+                <button type="submit" class="btn btn-success">Agregar Venta</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#cliente').select2({
+                placeholder: "Buscar cliente...",
+                allowClear: true
+            });
+            $('#productos').select2({
+                placeholder: "Buscar producto...",
+                allowClear: true
+            });
+        });
+
+        let total = 0;
+
+        function agregarProducto() {
+            const productoSelect = document.getElementById('productos');
+            const cantidadInput = document.getElementById('cantidad');
+            const productoId = productoSelect.value;
+            const productoText = productoSelect.options[productoSelect.selectedIndex].text;
+            const precio = parseFloat(productoSelect.options[productoSelect.selectedIndex].dataset.precio);
+            const cantidad = parseInt(cantidadInput.value, 10);
+            const subtotal = precio * cantidad;
+
+            if (productoId && cantidad > 0) {
+                const tableBody = document.getElementById('productos-table');
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="quitarProducto(this, ${subtotal})">X</button></td>
+                    <td>${productoText}</td>
+                    <td>${cantidad}</td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                `;
+
+                tableBody.appendChild(row);
+
+                total += subtotal;
+                actualizarTotal();
+
+                // Limpiar selección
+                $('#productos').val(null).trigger('change');
+                cantidadInput.value = 1;
+            } else {
+                alert("Por favor, selecciona un producto y una cantidad válida.");
+            }
+        }
+
+        function quitarProducto(button, subtotal) {
+            const row = button.closest('tr');
+            row.remove();
+            total -= subtotal;
+            actualizarTotal();
+        }
+
+        function actualizarTotal() {
+            const totalElement = document.querySelector('.total');
+            totalElement.textContent = `Total: $${total.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
+
 {% endblock %}

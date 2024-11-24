@@ -50,9 +50,6 @@ class RetirarDineroForm(forms.Form):
 
 #VENTA PRUEBA CHAT
 from django import forms
-from .models import Venta, DetalleVenta, DetalleVentaXProducto, Producto, Cliente
-
-from django import forms
 from .models import Venta, DetalleVenta, DetalleVentaXProducto
 
 class VentaForm(forms.ModelForm):
@@ -65,11 +62,12 @@ class DetalleVentaForm(forms.ModelForm):
         model = DetalleVenta
         fields = ['cantidad']
 
-class DetalleVentaXProductoForm(forms.ModelForm):
-    class Meta:
-        model = DetalleVentaXProducto
-        fields = ['productos', 'cantidad']
-
-
+class DetalleVentaXProductoForm(forms.Form):
+    productos = forms.ModelMultipleChoiceField(
+        queryset=Producto.objects.all(),
+        widget=forms.CheckboxSelectMultiple,  # Puedes usar otro widget si prefieres algo diferente
+        label="Productos"
+    )
+    cantidad = forms.IntegerField(min_value=1, label="Cantidad por producto")
 
 

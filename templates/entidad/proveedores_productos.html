@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h1 class="h1-pueva">Lista de Proveedores</h1>
-<table class="table-custom">
+<table id="tabla-proveedores" class="table-custom">
     <thead>
         <tr>
             <th>ID</th>
@@ -18,23 +18,21 @@
                 <td>{{ proveedor.nombre }}</td>
                 <td>{{ proveedor.telefono }}</td>
                 <td>
-                    <a href="{% url 'modificar_proveedor_producto' proveedor.id %}">
+                    <a href="{% url 'modificar_proveedor_producto' proveedor.id %}" class="btn-modificar">
                         <i class='bx bx-edit-alt'></i>
                     </a>
                 </td>
                 <td>
-                    <!-- Botón para activar el modal -->
-
-                    <a  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{  proveedor.id }}"  class="icon-container icon-delete">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{  proveedor.id }}" class="btn-eliminar">
                         <i class='bx bx-trash'></i>
                     </a>
                     
-                    <!-- Modal único para cada producto -->
-                    <div class="modal" id="confirmDeleteModal{{ proveedor.id }}" tabindex="-1">
+                    <!-- Modal único para cada proveedor -->
+                    <div class="modal fade" id="confirmDeleteModal{{ proveedor.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel{{ proveedor.id }}" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Confirmar eliminación</h5>
+                                    <h5 class="modal-title" id="confirmDeleteModalLabel{{ proveedor.id }}">Confirmar eliminación</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -52,10 +50,13 @@
                     </div>
                 </td>
             </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No hay proveedores disponibles.</td>
+            </tr>
         {% endfor %}
     </tbody>
 </table>
-
 <div class="btn-container">
     <a href="{% url 'nuevo_proveedor_producto' %}">
         <button class="btn-add-category" type="submit">AÑADIR NUEVO PROVEEDOR</button>

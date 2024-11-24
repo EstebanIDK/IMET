@@ -1,7 +1,6 @@
 from django.db import models
 
 from django.contrib.auth.models import User
-from django.db.models import F
 
 ESTADOS_CHOICES=(
     ("NOP","NO PAGADO"),
@@ -78,40 +77,21 @@ class Producto(models.Model):
     def __str__(self):
         return f"{self.nombre} {self.marca} {self.precio} "
 
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models import F
-
-def get_default_user():
-    return User.objects.get_or_create(username='default_user')[0].id
 class Caja(models.Model):
-    empleado = models.ForeignKey(User, on_delete=models.CASCADE, default=get_default_user)
-    fecha_apertura = models.DateTimeField(auto_now_add=True)
+    empleado= models.ForeignKey(User, on_delete=models.CASCADE)
+    fecha_apertura= models.DateTimeField(auto_now_add=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
-    monto_inicial = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    total_ingresado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    total_egresado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    saldo_total = models.DecimalField(max_digits=10, decimal_places=2)
-    activo = models.BooleanField(default=False)
-
+    monto_inicial= models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    total_ingresado= models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    total_egresado= models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    saldo_total= models.DecimalField(max_digits=10, decimal_places=2)
+    activo= models.BooleanField(default=False)
     class Meta:
-        verbose_name = "Caja"
-        verbose_name_plural = "Cajas"
+        verbose_name = ("Caja")
+        verbose_name_plural = ("Cajas")
 
     def __str__(self):
         return f"{self.empleado.username} {self.fecha_apertura}"
-
-    def registrar_venta(self, total_venta):
-        self.total_ingresado = F('total_ingresado') + total_venta
-        self.saldo_total = F('saldo_total') + total_venta
-        self.save()
-
-        MovimientoCaja.objects.create(
-            caja=self,
-            tipo='INGRESO',
-            cantidad=total_venta,
-            descripcion=f"Venta por {total_venta}"
-        )
 
 class MovimientoCaja(models.Model):
     TIPO_MOVIMIENTO = [

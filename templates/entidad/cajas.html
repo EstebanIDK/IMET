@@ -15,6 +15,7 @@
             <th>TOTAL RETIRADO</th>
             <th>SALDO TOTAL</th>
             <th>ACTIVO</th>
+            <th>OPCIONES</th>
         </tr>
     </thead>
     <tbody>
@@ -28,6 +29,10 @@
                 <td>{{ caja.total_egresado }}</td>
                 <td>{{ caja.saldo_total }}</td>
                 <td>{{ caja.activo }}</td>
+                <td>
+                    <a href="{% url 'ventas' caja.id %}" class="btn btn-secondary">VER
+                    
+                </a></td>
                 
             </tr>
         {% empty %}

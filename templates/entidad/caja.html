@@ -1,15 +1,69 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
-
 {% block content %}
-{% if caja_activa %}
-    <h1>Estado de la caja: {{ caja_activa.id }}</h1>
-    <p>Monto inicial: {{ caja_activa.monto_inicial }}</p>
-    <p>Saldo total: {{ caja_activa.saldo_total }}</p>
-    <p>Total Ingresado: {{ caja_activa.total_ingresado }}</p>
-    <p>Total Egresado: {{ caja_activa.total_egresado }}</p>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #1c1c2e;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        background-color: #252543;
+        padding: 20px;
+        max-width: 400px;
+        margin: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    h1 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #ffffff;
+    }
+    p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #a0a0a0;
+    }
+    .buttons {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+        gap: 10px;
+    }
+    .button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        min-width: 100px;
+    }
+    .button-green {
+        background-color: #4CAF50;
+    }
+    .button-red {
+        background-color: #f44336;
+    }
+    .button-orange {
+        background-color: #FFA500;
+    }
+</style>
+<div class="container">
+    {% if caja_activa %}
+        <h1>Estado de la caja: {{ caja_activa.id }}</h1>
+        <p>Monto inicial: ${{ caja_activa.monto_inicial }}</p>
+        <p>Saldo total: ${{ caja_activa.saldo_total }}</p>
+        <p>Total Ingresado: ${{ caja_activa.total_ingresado }}</p>
+        <p>Total Egresado: ${{ caja_activa.total_egresado }}</p>
 
-
+    
+    
 {% comment %} <button  type="button" class="add-btn" data-bs-toggle="modal" data-bs-target="#ingresardinero" style="color:#00ff0df5">ingrsear dinero</button>
 
 
@@ -25,7 +79,7 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="caja-total_ingresado" style="color: black;">Monto</label>
-                        <input type="number" id="caja-total_ingresado" name="total_ingresado" class="form-control" placeholder="Ingrese el monto inicial">
+                        <input type="text" id="caja-total_ingresado" name="total_ingresado" class="form-control" placeholder="Ingrese el monto inicial">
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Guardar</button>
@@ -35,55 +89,40 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-     {% endcomment %}
-<a href="{%url 'ingresar_dinero' %}">Ingresar Dinero</a>
-
-<a href="{%url 'retirar_dinero' %}">Retirar Dinero</a>
-
-<a href="{%url 'cerrar_caja' %}">Cerrar Caja</a>
-
-
-
-
-
-
-
-
-{% else %}
-    <h2>Presione para abrir la Caja</h2>
-
-    <button type="button" class="add-btn" data-bs-toggle="modal" data-bs-target="#newcaja" style="color:#00ff0df5">Abrir caja</button>
-    
-    <!-- Modal para agregar nueva categoría -->
-    <div class="modal fade" id="newcaja" tabindex="-1" aria-labelledby="newCajaModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newCajaModalLabel" style="color: black;">Agregar monto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action="{% url 'abrir_caja' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="caja-monto_inicial" style="color: black;">Monto</label>
-                            <input type="text" id="caja-monto_inicial" name="monto_inicial" class="form-control" placeholder="Ingrese el monto inicial">
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                        </div>
-                    </form>
+{% endcomment %}
+        <div class="buttons">
+            <a href="{% url 'ingresar_dinero' %}" class="button button-green">Ingresar Dinero</a>
+            <a href="{% url 'retirar_dinero' %}" class="button button-red">Retirar Dinero</a>
+            <a href="{% url 'cerrar_caja' %}" class="button button-orange">Cerrar Caja</a>
+        </div>
+    {% else %}
+        <h2>Presione para abrir la Caja</h2>
+        <button type="button" class="button button-green" data-bs-toggle="modal" data-bs-target="#newcaja">Abrir caja</button>
+        
+        <!-- Modal para agregar nueva categoría -->
+        <div class="modal fade" id="newcaja" tabindex="-1" aria-labelledby="newCajaModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newCajaModalLabel">Agregar monto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'abrir_caja' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="caja-monto_inicial">Monto</label>
+                                <input type="text" id="caja-monto_inicial" name="monto_inicial" class="form-control" placeholder="Ingrese el monto inicial">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-{% endif %}
-
+    {% endif %}
+</div>
 {% endblock %}
+

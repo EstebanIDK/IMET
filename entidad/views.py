@@ -197,25 +197,14 @@ def abrir_caja(request):
         form=AperturaCajaForm()
     return render(request, 'entidad/caja.html',{'form':form} )    
 
-def cerrar_caja(request):
-    empleado = request.user
-    cajas = Caja.objects.filter(empleado=empleado, activo=True)
-    
-    if cajas.count() > 1:
-        # Handle the scenario where multiple active cajas are found
-        caja = cajas.first()
-    elif cajas.count() == 1:
-        caja = cajas.first()
-    else:
-        caja = None
-
+def  cerrar_caja(request):
+    empleado= request.user
+    caja=Caja.objects.filter(empleado=empleado,activo=True).first()
     if request.method == 'POST':
-        if caja:
             caja.activo = False
             caja.save()
             return redirect('caja')
-
-    return render(request, 'entidad/cerrar_caja.html', {'caja': caja})
+    return render(request, 'entidad/cerrar_caja.html' , {'caja': caja})
 
 def ingresar_dinero(request):
     empleado=request.user
@@ -261,60 +250,103 @@ def cajas(request):
     
     return render(request, 'entidad/cajas.html', {'cajas': caja_list})
 
+def ventas(request, pk):
+    caja= Caja.objects.get(id=pk)
+    ventas_list = Venta.objects.filter(caja=caja)
+    return render(request, 'entidad/ventas.html', {'ventas': ventas_list,
+                                                   'caja': pk})
+def detalle_venta(request, pk):
+    venta = Venta.objects.get(id=pk)
+    detalle_venta = DetalleVenta.objects.get(venta=venta)
+    detalle_venta_producto_list = DetalleVentaXProducto.objects.filter(detalle_venta= detalle_venta)
+    return render(request, 'entidad/detalle_venta.html', {'venta' : venta,
+                                                          'detalle_venta': detalle_venta,
+                                                          'dxp': detalle_venta_producto_list})
+
+
+
 
 #VENTAS PRUEBA CHAT
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Caja, Venta, DetalleVenta, DetalleVentaXProducto, Producto
-from .forms import VentaForm, DetalleVentaForm, DetalleVentaXProductoForm
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.utils import timezone
+from .models import Venta, DetalleVenta, DetalleVentaXProducto, Producto,Cliente
+from .forms import VentaForm, DetalleVentaForm, DetalleVentaXProductoForm
+from django.forms import modelformset_factory
 
 
-from django.shortcuts import get_object_or_404
+
 
 
 def crear_venta(request):
+    empleado = request.user
+    caja = Caja.objects.filter(empleado=empleado, activo=True).first()
+    
+    # Obtener clientes y productos en ambas ramas del flujo
+    clientes = Cliente.objects.all()  # Define clientes
+    productos = Producto.objects.all()  # Define productos
+
     if request.method == 'POST':
-        form_venta = VentaForm(request.POST)
-        form_detalle = DetalleVentaForm(request.POST)
-        if form_venta.is_valid() and form_detalle.is_valid():
-            try:
-                # Asignar el empleado autenticado
-                venta = form_venta.save(commit=False)
-                venta.empleado = request.user
-                venta.save()
-                
-                detalle_venta = form_detalle.save(commit=False)
-                detalle_venta.venta = venta
-                detalle_venta.save()
+        venta_form = VentaForm(request.POST)
+        detalle_venta_form = DetalleVentaForm(request.POST)
+        productos_form = DetalleVentaXProductoForm(request.POST)
 
-                # Obtener el ID del producto desde el POST
-                producto_id = request.POST.get('producto')  # Asegúrate de que el nombre del campo es correcto
-                producto = get_object_or_404(Producto, id=producto_id)
+        if venta_form.is_valid() and detalle_venta_form.is_valid() and productos_form.is_valid():
+            # Crear la venta
+            venta = Venta.objects.create(
+                caja=caja,
+                empleado=empleado,
+                cliente=venta_form.cleaned_data['cliente'],
+                total=0,
+                forma_pago=venta_form.cleaned_data['forma_pago']
+            )
 
-                # Crear la relación en DetalleVentaXProducto
+            # Inicializar el total de la venta
+            total_venta = 0
+
+            # Crear el detalle de venta
+            cantidad = detalle_venta_form.cleaned_data['cantidad']
+            detalle_venta = DetalleVenta.objects.create(
+                venta=venta,
+                cantidad=cantidad,
+                sub_total=0  # Inicialmente 0, lo actualizaremos después
+            )
+
+            # Obtener los productos seleccionados
+            productos = productos_form.cleaned_data['productos']
+            cantidad_producto = productos_form.cleaned_data['cantidad']
+
+            # Procesar cada producto seleccionado
+            for producto in productos:
+                subtotal_producto = producto.precio * cantidad_producto
+                total_venta += subtotal_producto
+
+                # Crear la relación entre detalle y producto
                 DetalleVentaXProducto.objects.create(
                     detalle_venta=detalle_venta,
                     productos=producto,
-                    cantidad=detalle_venta.cantidad
+                    cantidad=cantidad_producto
                 )
 
-                # Registrar la venta en la caja
-                caja = venta.caja
-                caja.registrar_venta(venta.total)
-                
-                return redirect('ventas:lista_ventas')
-            except Exception as e:
-                print(f"Error al guardar la venta: {e}")
-                return redirect('home')
-        else:
-            # Imprimir los errores de los formularios en la consola
-            print("Errores en form_venta:", form_venta.errors)
-            print("Errores en form_detalle:", form_detalle.errors)
-            return redirect('home')
-    else:
-        form_venta = VentaForm()
-        form_detalle = DetalleVentaForm()
-    return render(request, 'entidad/crear_venta.html', {'form_venta': form_venta, 'form_detalle': form_detalle})
+            # Actualizar el total de la venta en la instancia de venta
+            venta.total = total_venta
+            venta.save()
 
+            # Actualizar el saldo total de la caja sumando el total de la venta
+            caja.saldo_total += total_venta
+            caja.save()
+
+            return redirect('home')  # Redirigir a la lista de ventas o a una vista de confirmación
+    else:
+        venta_form = VentaForm()
+        detalle_venta_form = DetalleVentaForm()
+        productos_form = DetalleVentaXProductoForm()
+
+    return render(request, 'entidad/crear_venta.html', {
+        'venta_form': venta_form,
+        'detalle_venta_form': detalle_venta_form,
+        'productos_form': productos_form,
+        'clientes': clientes,
+        'productos': productos,
+    })
 

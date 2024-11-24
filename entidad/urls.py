@@ -23,8 +23,6 @@ urlpatterns = [
     path('nuevo_proveedor_producto/', views.nuevo_proveedor_producto, name="nuevo_proveedor_producto"),
     path('modificar_proveedor_producto/<int:pk>', views.modificar_proveedor_producto, name="modificar_proveedor_producto"),
     path('eliminar_proveedor_producto/<int:pk>', views.eliminar_proveedor_producto, name="eliminar_proveedor_producto"),
-    #VENTAS
-    # path('proceso_venta/', views.proceso_venta, name='proceso_venta'),
 
     #CAJA
     path('caja',views.caja, name='caja'),
@@ -35,8 +33,13 @@ urlpatterns = [
     path('cajas',views.cajas, name='cajas'),
 
 
+    path('caja/<int:pk>/ventas', views.ventas, name='ventas'),
+    path('venta/<int:pk>/', views.detalle_venta, name='detalle_venta'),
+
+
     #VENTA PRUEBA CHAT
-   path('ventas/nueva/', views.crear_venta, name='crear_venta'),
+    path('ventas/nueva/', views.crear_venta, name='crear_venta'),
+
 
 
 ]
