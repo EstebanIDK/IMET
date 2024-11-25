@@ -14,7 +14,7 @@
 </head>
 <div class="messages">
     {% for message in messages %}
-        <p>{{ message }}</p>
+        <p class="alert alert-success">{{ message }}</p>
     {% endfor %}
 </div>
 <div class="main-container">
@@ -114,14 +114,14 @@
             <div class="final-balance">
                 <p class="balance-label">Saldo final</p>
                 <p class="balance-amount">${{ caja_activa.saldo_total }}</p>
-                {% if perms.auth.add_caja %}
+                {% if perms.auth.add_user %}
                 <button onclick="abrir_modal_edicion('{% url 'cerrar_caja' %}')" class="button button-orange">Cerrar Caja</button>
                 {% endif %}
             </div>
         </div>
 
     {% else %}
-        {%if perms.auth.add_caja%}
+        {%if perms.auth.add_user %}
         <div class="summary-container">
             <h2 class="title">Presione para abrir la Caja</h2>
             <button type="button" class="button button-green" onclick="abrir_modal_edicion('{% url 'abrir_caja' %}')">

@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
+<h1 class="products-title">Usuarios</h1>
 <div class="messages">
     {% for message in messages %}
-        <p>{{ message }}</p>
+        <p class="alert alert-success">{{ message }}</p>
     {% endfor %}
 </div>
-
-<h1 class="products-title">Usuarios</h1>
-
 <table class="table-custom" id="tabla-usuarios">
     <thead>
         <tr>
@@ -43,9 +41,6 @@
                     {% if perms.auth.delete_user %}
                     <a href="{% url 'modificar_usuario' usuario.id %}" class="icon-container icon-edit">
                         <i class='bx bx-edit-alt'></i>
-                    </a>
-                    <a href="{% url 'eliminar_usuario' usuario.id %}" class="icon-container icon-delete">
-                        <i class='bx bx-trash'></i>
                     </a>
                     {% endif %}
                 </td>
@@ -186,11 +181,12 @@
     $(document).ready(function() {
         $('#tabla-usuarios').DataTable({
             "paging": true,
-            "ordering": true,  // Habilitar ordenamiento en toda la tabla
+            "ordering": true,
+            "lengthChange": false,  // Habilitar ordenamiento en toda la tabla
             "columnDefs": [
-                { "orderable": false, "targets": [1, 2, 3, 4, 5, 6, 7] },  // Deshabilitar ordenamiento en todas las columnas excepto "USUARIO"
-                { "searchable": true, "targets": [0] },  // Habilitar búsqueda solo en la columna "USUARIO"
-                { "searchable": false, "targets": [1, 2, 3, 4, 5, 6, 7] }  // Deshabilitar búsqueda en otras columnas
+                { "orderable": false, "targets": [1, 2, 3,5, 6, 7] },  // Deshabilitar ordenamiento en todas las columnas excepto "USUARIO"
+                { "searchable": true, "targets": [0, 1, 2] },  // Habilitar búsqueda solo en la columna "USUARIO"
+                { "searchable": false, "targets": [3, 4, 5, 6, 7] }  // Deshabilitar búsqueda en otras columnas
             ],
             "language": {
                 "sProcessing": "Procesando...",

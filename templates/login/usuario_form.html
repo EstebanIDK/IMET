@@ -2,9 +2,14 @@
 {% load widget_tweaks %}
 {% load static %}
 {% block content %}
+
 <div class="form-container">
     <h1 class="form-title">Nuevo Usuario</h1>
-    
+    <div class="messages">
+        {% for message in messages %}
+            <p class="alert alert-warning">{{ message }}</p>
+        {% endfor %}
+    </div>
     <form method="post" class="custom-form">
         {% csrf_token %}
         {% for field in form %}

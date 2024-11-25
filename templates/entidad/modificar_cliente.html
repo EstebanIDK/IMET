@@ -1,8 +1,7 @@
 {% extends "base.html" %}
-{% load widget_tweaks %}
 {% block content %}
 <div class="form-container">
-    <h1 class="form-title">Formulario de Nuevo Cliente</h1>
+    <h1 class="form-title">Modificación Cliente </h1>
     <div class="messages">
         {% for message in messages %}
             <p class="alert alert-warning">{{ message }}</p>
@@ -10,12 +9,14 @@
     </div>
     <form method="POST" class="form-custom">
         {% csrf_token %}
+        
         <div class="form-group">
             {{ form.as_p }}
         </div>
+        
         <div class="form-footer">
             <button type="submit" class="btn btn-confirmar">Registrar</button>
-            <a href="{% url 'crear_venta' %}" class="btn btn-cancelar">Cancelar</a>
+            <a href="{% url 'clientes' %}" class="btn btn-cancelar">Cancelar</a>
         </div>
     </form>
 </div>

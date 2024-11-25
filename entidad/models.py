@@ -25,21 +25,12 @@ class Categoria(models.Model):
     def __str__(self):
         return f"{self.nombre}"
 
-class Ciudad(models.Model):
-    cp= models.CharField(max_length=4, unique=True, null=False, blank=False)
-    nombre= models.CharField(max_length=20, unique=True, null= False, blank=False)
-    class Meta:
-        verbose_name = ("Ciudad")
-        verbose_name_plural = ("Ciudades")
-
-    def __str__(self):
-        return f"{self.nombre}({self.cp})"
 
 class Cliente(models.Model):
-    dni= models.CharField(max_length=8, unique=True)
+    dni= models.CharField(max_length=8)
     nombre= models.CharField(max_length=30)
     apellido= models.CharField(max_length=30)
-    correo= models.EmailField(max_length=40, unique=True, blank=True)
+    correo= models.EmailField(max_length=40, blank=True)
     telefono= models.CharField(max_length=10)
     activo= models.BooleanField(default=True)
 
@@ -51,8 +42,8 @@ class Cliente(models.Model):
         return f"{self.nombre} {self.apellido}"
 
 class ProveedorProducto(models.Model):
-    nombre= models.CharField(max_length=100, unique=True)
-    telefono= models.CharField(max_length=10, unique=True)
+    nombre= models.CharField(max_length=100)
+    telefono= models.CharField(max_length=10)
     activo= models.BooleanField(default=True)
 
 

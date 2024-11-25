@@ -10,16 +10,21 @@
     <link rel="stylesheet" href="{% static 'css/clientes_tabla.css' %}">
 </head>
 <h1 class="products-title">CLIENTES</h1>
+<div class="messages">
+    {% for message in messages %}
+        <p class="alert alert-success">{{ message }}</p>
+    {% endfor %}
+</div>
 <table class="table-custom" id="tabla-clientes">
     <thead>
         <tr>
             <th>DNI</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-            <th>Información</th>
+            <th>NOMBRE</th>
+            <th>APELLIDO</th>
+            <th>CORREO</th>
+            <th>TELÉFONO</th>
+            <th>ACCIONES</th>
+            <th>INFORMACIÓN</th>
         </tr>
     </thead>
     <tbody>
@@ -35,7 +40,7 @@
                         <a href="{% url 'modificar_cliente' cliente.id %}" class="icon-container icon-edit">
                             <i class='bx bx-edit-alt'></i>
                         </a>
-                        {% if perms.auth.add_caja %}
+                        {% if perms.auth.add_user %}
                         <a href="{% url 'eliminar_cliente' cliente.id %}" class="icon-container icon-delete">
                             <i class='bx bx-trash'></i>
                         </a>

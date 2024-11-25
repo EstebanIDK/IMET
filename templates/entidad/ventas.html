@@ -4,7 +4,7 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/registro_ventas.css' %}">
 <div class="container-fluid">
-    <h1 class="categories-title">CAJA N°{{ caja }}</h1>
+    <h1 class="categories-title">{{ title }}</h1>
 
     {% if ventas %}
     <table class="table-custom" id="tabla-registroventas">
@@ -16,7 +16,7 @@
                 <th>FECHA</th>
                 <th>TOTAL</th>
                 <th>MÉTODO DE PAGO</th>
-                <th>OPCIONES</th>
+                <th>ACCIONES</th>
             </tr>
         </thead>
         <tbody>

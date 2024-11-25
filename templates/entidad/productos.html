@@ -13,19 +13,19 @@
 <h1 class="products-title">Productos</h1>
 <div class="messages">
     {% for message in messages %}
-        <p>{{ message }}</p>
+        <p class="alert alert-success">{{ message }}</p>
     {% endfor %}
 </div>
 <table id="tabla-productos" class="table-custom">
     <thead>
         <tr>
-            <th>Nombre</th>
-            <th>Marca</th>
-            <th>Categoria</th>
-            <th>Precio</th>
-            <th>Descripcion</th>
-            <th>Stock</th>
-            <th>Acciones</th>
+            <th>NOMBRE</th>
+            <th>MARCA</th>
+            <th>CATEGORÍA</th>
+            <th>PRECIO</th>
+            <th>DESCRIPCIÓN</th>
+            <th>STOCK</th>
+            <th>ACCIONES</th>
         </tr>
     </thead>
     <tbody>
@@ -46,7 +46,7 @@
                         <a href="{% url 'modificar_producto' producto.id %}" class="icon-container icon-edit">
                             <i class='bx bx-edit-alt'></i>
                         </a>
-                        {% if perms.auth.delete_producto %}
+                        {% if perms.auth.add_user %}
                         <a href="{% url 'eliminar_producto' producto.id %}" class="icon-container icon-delete">
                             <i class='bx bx-trash'></i>
                         </a>

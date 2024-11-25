@@ -13,7 +13,7 @@
 
 <div class="messages">
     {% for message in messages %}
-        <p>{{ message }}</p>
+        <p class="alert alert-success">{{ message }}</p>
     {% endfor %}
 </div>
 
@@ -23,7 +23,7 @@
             <th class="id-column">ID</th>
             <th class="nombre-column">NOMBRE</th>
             <th class="telefono-column">TELÉFONO</th>
-            {% if perms.auth.add_caja %}
+            {% if perms.auth.add_user %}
             <th class="actions-column">ACCIONES</th>
             {% else %}
             <th class="actions-column" style="visibility: hidden; display: none;">ACCIONES</th>
@@ -36,7 +36,7 @@
                 <td>{{ proveedor.id }}</td>
                 <td>{{ proveedor.nombre }}</td>
                 <td>{{ proveedor.telefono }}</td>
-                {% if perms.auth.add_caja %}
+                {% if perms.auth.add_user %}
                     <td>
                         <div class="actions-container">
                             <a href="{% url 'modificar_proveedor_producto' proveedor.id %}" class="action-btn edit-btn">
@@ -59,7 +59,7 @@
     </tbody>
 </table>
 
-{% if perms.auth.add_caja %}
+{% if perms.auth.add_user %}
 <div class="btn-container">
     <a href="{% url 'nuevo_proveedor_producto' %}">
         <button class="btn-add-category" type="submit">Nuevo proveedor</button>

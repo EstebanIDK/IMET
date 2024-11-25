@@ -156,6 +156,11 @@
     .btn:active {
         transform: translateY(0);
     }
+    .form-group input[type="checkbox"] {
+        margin-left: -200px; 
+        margin-top: -25px; 
+        vertical-align:middle;
+    }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -179,6 +184,12 @@
 
         .custom-form {
             grid-template-columns: 1fr; 
+        }
+
+        .form-group input[type="checkbox"] {
+            margin-left: -200px; 
+            margin-top: -25px; 
+            vertical-align: middle;
         }
     }
 </style>

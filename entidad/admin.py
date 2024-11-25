@@ -3,7 +3,6 @@ from entidad.models import *
 # Register your models here.
 
 admin.site.register(Categoria)
-admin.site.register(Ciudad)
 admin.site.register(Cliente)
 admin.site.register(ProveedorProducto)
 admin.site.register(Producto)

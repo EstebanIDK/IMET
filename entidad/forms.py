@@ -15,9 +15,9 @@ class ProductoForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-styling'}),
             'marca': forms.TextInput(attrs={'class': 'form-styling'}),
-            'precio': forms.TextInput(attrs={'class': 'form-styling'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-styling'}),
             'categoria': forms.Select(attrs={'class': 'form-styling'}),
-            'cantidad': forms.TextInput(attrs={'class': 'form-styling'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-styling'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-styling', 'rows': 3, 'cols': 40}),
 
         }
@@ -30,6 +30,8 @@ class CategoriaForm(forms.ModelForm):
         fields= ('nombre',)
 
 class ProveedorProductoForm(forms.ModelForm):
+    telefono = forms.CharField(max_length=10, widget= forms.NumberInput(attrs={'max_length': '10', 'oninput': "this.value=this.value.slice(0,10)" , 'placeholder':'Ingrese Teléfono'}), label='Teléfono')
+    nombre = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese nombre proveedor'}),label='Nombre')
     class Meta:
         model = ProveedorProducto
         fields = ('nombre', 'telefono')
@@ -49,18 +51,14 @@ class RetirarDineroForm(forms.Form):
     descripcion = forms.CharField(widget=forms.Textarea, required=False, label="Descripción")
 
 class ClienteForm(forms.ModelForm):
+    dni = forms.CharField(max_length=8, widget= forms.NumberInput(attrs={'max_length': '8', 'oninput': "this.value=this.value.slice(0,8)", 'placeholder': 'Ingrese su DNI'}), label='DNI')
+    telefono = forms.CharField(max_length=10, widget= forms.NumberInput(attrs={'max_length': '10', 'oninput': "this.value=this.value.slice(0,10)" , 'placeholder':'Ingrese Teléfono'}), label='Teléfono')
+    nombre = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese su nombre'}),label='Nombre')
+    apellido = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese su apellido'}),label='apellido')
+    correo = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Ingrese su correo electrónico'} ), label='Correo Electrónico' )
     class Meta:
         model= Cliente
         fields= ("dni","nombre","apellido","correo","telefono")
-        labels = {
-            'dni': 'DNI',
-            'nombre': 'Nombre',
-            'apellido': 'Apellido',
-            'correo': 'Correo Electrónico',
-            'telefono': 'Teléfono',
-            
-        }
-
 
 #probando formulario de registro
 
@@ -69,18 +67,18 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 
 class CustomUserCreationForm(UserCreationForm):
-    first_name = forms.CharField(label='Nombre', max_length=30, required=True)
-    last_name = forms.CharField(label='Apellido', max_length=30, required=True)
-    email = forms.EmailField(label='Correo Electrónico', required=True)
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese su nombre'}),label='Nombre', required=True)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese su apellido'}),label='apellido', required= True)
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Ingrese su correo electrónico'} ), label='Correo Electrónico', required=True)
     group = forms.ModelChoiceField(label='Tipo de usuario', queryset=Group.objects.all(), required=True)
 
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'group',)
 class UserModifyForm(forms.ModelForm):
-    first_name = forms.CharField(label='Nombre', max_length=30, required=True)
-    last_name = forms.CharField(label='Apellido', max_length=30, required=True)
-    email = forms.EmailField(label='Correo Electrónico', required=True)
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese su nombre'}),label='Nombre', required=True)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'oninput': "this.value=this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\\s]/g, '')",'placeholder': 'Ingrese su apellido'}),label='apellido', required= True)
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Ingrese su correo electrónico'} ), label='Correo Electrónico', required=True)
     group = forms.ModelChoiceField(label='Tipo de usuario', queryset=Group.objects.all(), required=True)
 
     class Meta:

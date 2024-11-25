@@ -63,7 +63,7 @@
                 <ul class="sub-menu">
                     <li><a class="link_name" href="#">Caja</a></li>
                     <li><a href="{% url 'caja' %}">Caja actual</a></li>
-                    {% if perms.auth.add_caja %}
+                    {% if perms.auth.add_user %}
                     <li><a href="{% url 'cajas' %}">Registro cajas</a></li>
                     {% endif %}
                 </ul>

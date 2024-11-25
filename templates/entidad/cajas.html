@@ -2,9 +2,9 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/cajas_registro.css' %}">
+<link rel="stylesheet" href="{% static 'css/productos_tabla.css' %}">
 
-<h1 class="categories-title">REGISTRO DE CAJAS</h1>
+<h1 class="products-title">REGISTRO DE CAJAS</h1>
 
 <table class="table-custom" id="table-registrocajas">
     <thead>
@@ -16,8 +16,8 @@
             <th>TOTAL INGRESADO</th>
             <th>TOTAL RETIRADO</th>
             <th>SALDO TOTAL</th>
-            <th>ACTIVO</th>
-            <th>OPCIONES</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
         </tr>
     </thead>
     <tbody>
@@ -30,7 +30,13 @@
                 <td>{{ caja.total_ingresado }}</td>
                 <td>{{ caja.total_egresado }}</td>
                 <td>{{ caja.saldo_total }}</td>
-                <td>{{ caja.activo }}</td>
+                <td>
+                    {% if caja.activo %}
+                        ABIERTA
+                    {% else %}
+                        CERRADA
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{% url 'ventas' caja.id %}" class="btn btn-secondary">VER</a>
                 </td>
@@ -54,7 +60,7 @@
             "paging": true,
             "ordering": true,  // Habilitar el ordenamiento
             "columnDefs": [
-                { "orderable": false, "targets": [0, 1, 2, 4, 5, 6, 7, 8] }  // Deshabilitar el ordenamiento en todas las columnas excepto Monto Inicial (3) y Total Retirado (5)
+                { "orderable": false, "targets": [0, 1, 2, 4, 5, 8] }  // Deshabilitar el ordenamiento en todas las columnas excepto Monto Inicial (3) y Total Retirado (5)
             ],
             "searching": true,
             "lengthChange": false,

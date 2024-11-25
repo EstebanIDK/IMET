@@ -20,7 +20,7 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="{{ form.nombre.id_for_label }}">Nombre</label>
-                {% render_field form.nombre class="form-input custom-input" pattern="[A-Za-z0-9\s]+" placeholder="Nombre del producto" %}
+                {% render_field form.nombre class="form-input custom-input" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$" placeholder="Nombre del producto" %}
             </div>
             <div class="form-group">
                 <label for="proveedores">Proveedor/es</label>
@@ -37,26 +37,26 @@
             </div>
             <div class="form-group">
                 <label for="{{ form.marca.id_for_label }}">Marca</label>
-                {% render_field form.marca class="form-input custom-input" pattern="[A-Za-z0-9\s]+" placeholder="Marca del producto" %}
+                {% render_field form.marca class="form-input custom-input" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$" placeholder="Marca del producto" %}
             </div>
             <div class="form-group">
                 <label for="{{ form.cantidad.id_for_label }}">Stock</label>
-                {% render_field form.cantidad class="form-input custom-input  small-input" pattern="[A-Za-z0-9\s]+" placeholder="0" %}
+                {% render_field form.cantidad class="form-input custom-input  small-input" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$" placeholder="0" %}
             </div>
             <div class="form-group">
                 <label for="{{ form.precio.id_for_label }}">Precio</label>
-                {% render_field form.precio class="form-input custom-input  small-input" pattern="[A-Za-z0-9\s]+" placeholder="0.00" %}
+                {% render_field form.precio class="form-input custom-input  small-input" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$" placeholder="0.00" %}
             </div>
             <div class="form-group">
                 <label for="{{ form.categoria.id_for_label }}">Categoría</label>
                 <div class="input-group">
-                    {% render_field form.categoria class="form-select custom-select" pattern="[A-Za-z0-9\s]+" %}
+                    {% render_field form.categoria class="form-select custom-select" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$" %}
                     
                 </div>
             </div>
             <div class="form-group full-width">
                 <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
-                {% render_field form.descripcion class="form-input custom-input form-textarea" pattern="[A-Za-z0-9\s]+"  placeholder="Descripción del producto" %}
+                {% render_field form.descripcion class="form-input custom-input form-textarea" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$"  placeholder="Descripción del producto" %}
             </div>
         </div>
         <div class="form-actions">
@@ -66,7 +66,7 @@
     </form>
     <div class="messages">
         {% for message in messages %}
-            <p>{{ message }}</p>
+            <p class="alert alert-warning">{{ message }}</p>
         {% endfor %}
     </div>
 </div>

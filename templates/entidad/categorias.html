@@ -15,16 +15,16 @@
 
 <div class="messages">
     {% for message in messages %}
-        <p>{{ message }}</p>
+        <p class="alert alert-success">{{ message }}</p>
     {% endfor %}
 </div>
 
 <table id="tabla-categorias" class="table-custom">
     <thead>
         <tr>
-            <th class="column-nombre">Nombre</th>
+            <th class="column-nombre">NOMBRE</th>
             {% if perms.auth.delete_categoria %}
-            <th class="column-acciones">Acciones</th>
+            <th class="column-acciones">ACCIONES</th>
             {% endif %}
         </tr>
     </thead>
@@ -33,7 +33,7 @@
         <tr>
             <td class="column-nombre">{{ categoria.nombre }}</td>
             <td class="column-acciones actions-column">
-                {% if perms.auth.delete_categoria %}
+                {% if perms.auth.add_user %}
                 <a href="{% url 'modificar_categoria' categoria.id %}" class="icon-container icon-edit">
                     <i class='bx bx-edit-alt'></i>
                 </a>
@@ -51,7 +51,7 @@
     </tbody>
 </table>
 <br>
-{% if perms.auth.add_caja %}
+{% if perms.auth.add_user %}
 <div class="btn-container">
     <a href="{% url 'nueva_categoria' %}" class="btn-add-category">
         Nueva categoría

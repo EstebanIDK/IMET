@@ -36,7 +36,6 @@ import requests
 
 @login_required
 def home(request):
-    # Obtener productos con stock bajo (menos de 6 unidades)
     productos_stock_bajo = Producto.objects.filter(activo=True, cantidad__lte=5).order_by('cantidad')
 
     url = 'https://dolarapi.com/v1/dolares'
@@ -84,11 +83,9 @@ def nuevo_producto(request):
         precio = Decimal(request.POST['precio'])
         categoria_id = request.POST['categoria']
         cantidad = int(request.POST['cantidad'])
-        proveedores_ids = request.POST.getlist('proveedores')  # Asegúrate de que el name sea 'proveedor[]' en HTML
+        proveedores_ids = request.POST.getlist('proveedores')
         print(proveedores_ids)
 
-        
-        # Verifica si el producto ya existe y está inactivo
         if Producto.objects.filter(nombre__iexact=nombre, marca__iexact=marca, activo=False).exists():
             producto = Producto.objects.get(nombre__iexact=nombre, marca__iexact=marca, activo=False)
             producto.activo = True
@@ -96,15 +93,13 @@ def nuevo_producto(request):
             producto.cantidad = cantidad
             producto.categoria = Categoria.objects.get(id=categoria_id)
             producto.save()
-            producto.proveedores.set(proveedores_ids)  # Asigna los proveedores seleccionados
+            producto.proveedores.set(proveedores_ids)
             messages.success(request, 'Producto reactivado y actualizado exitosamente.')
             return redirect("productos")
         
-        # Si el producto ya existe y está activo
         elif Producto.objects.filter(nombre__iexact=nombre, marca__iexact=marca).exists():
             messages.error(request, 'El producto ya existe y está activo.')
 
-        # Si el formulario es válido, guarda el nuevo producto
         elif form.is_valid():
             nombre = form.cleaned_data['nombre'].strip().lower().capitalize()
             marca = form.cleaned_data['marca'].strip().lower().capitalize()
@@ -115,12 +110,12 @@ def nuevo_producto(request):
             producto.cantidad = cantidad
             producto.categoria = Categoria.objects.get(id=categoria_id)
             producto.save()
-            producto.proveedores.set(proveedores_ids)  # Asigna los proveedores seleccionados
+            producto.proveedores.set(proveedores_ids)
             form.save_m2m()
             messages.success(request, 'Producto agregado exitosamente.')
             return redirect("productos")
         else:
-            messages.error(request, 'Hubo un problema con el formulario. Por favor revisa los campos.')
+            messages.error(request, 'Hubo un problema con el formulario. Por favor, revisa los campos.')
 
     else:
         form = ProductoForm()
@@ -145,6 +140,8 @@ def modificar_producto(request, pk):
             messages.error(request, 'El producto ya existe con estos datos.')
 
         elif form.is_valid():
+            producto.nombre = form.cleaned_data['nombre'].strip().lower().capitalize()
+            producto.marca = form.cleaned_data['marca'].strip().lower().capitalize()
             form.save(commit= True)
             messages.success(request, 'Producto modificado correctamente.')
             return redirect("productos")
@@ -163,13 +160,12 @@ def eliminar_producto(request, pk):
             producto.cantidad = 0
             producto.save()
             messages.success(request, 'Producto eliminado con éxito.')
-            return redirect('productos')  # Redirige a la lista actualizada de productos
+            return redirect('productos')
         else:
             producto.delete()
             messages.success(request, 'Producto eliminado con éxito de forma permanente.')
-            return redirect('productos')  # Redirige a la lista actualizada de productos
+            return redirect('productos')
     
-    # No necesitas una confirmación de vista, solo la lógica para manejar el POST
     return render(request, "entidad/confirmar_eliminacion.html", {
         'objeto': 'el producto',
         'dato': producto.nombre,
@@ -191,21 +187,23 @@ def nueva_categoria(request):
         return redirect('permiso_denegado')
 
     if request.method == "POST":
-        nombre= request.POST['nombre']
+        nombre= request.POST['nombre'].strip().lower().capitalize()
         form= CategoriaForm(request.POST)
         if Categoria.objects.filter(nombre__iexact=nombre, activo=False).exists():
             categoria = Categoria.objects.get(nombre__iexact=nombre, activo=False)
             categoria.activo = True
             categoria.save()
-            messages.success(request, 'Categoria creada y reactivada correctamente.')
+            messages.success(request, 'Categoría creada y reactivada correctamente.')
             return redirect("categorias")
 
         elif Categoria.objects.filter(nombre__iexact=nombre).exists():
             messages.error(request, 'El producto ya existe.')
 
         elif form.is_valid():
-            form.save(commit=True)
-            messages.success(request, 'Categoria creada correctamente.')
+            nueva_categoria = form.save(commit=False)
+            nueva_categoria.nombre = nombre
+            nueva_categoria.save()
+            messages.success(request, 'Categoría creada correctamente.')
             return redirect("categorias")
     else:
         form= CategoriaForm()
@@ -220,11 +218,13 @@ def modificar_categoria(request, pk):
     
     form = CategoriaForm(request.POST or None, instance=categoria)
     if request.method == "POST":
-        nombre= request.POST['nombre']
+        nombre= request.POST['nombre'].strip().lower().capitalize()
         if Categoria.objects.filter(nombre__iexact=nombre).exclude(id=pk).exists():
-            messages.error(request, 'Nombre ya existente. Por favor ingrese otro nombre.')
+            messages.error(request, 'Nombre ya existente. Por favor, ingrese otro nombre.')
         elif form.is_valid():
-            form.save(commit= True)
+            categoria = form.save(commit=False)
+            categoria.nombre = nombre
+            categoria.save()
             messages.success(request, 'Categoria modificada correctamente.')
             return redirect("categorias")
     return render(request, "entidad/categoria_form.html", {'form': form,
@@ -269,7 +269,7 @@ def nuevo_proveedor_producto(request):
         return redirect('permiso_denegado')
     
     if request.method == 'POST':
-        nombre= request.POST['nombre']
+        nombre= request.POST['nombre'].strip().upper()
         form = ProveedorProductoForm(request.POST)
         if ProveedorProducto.objects.filter(nombre__iexact=nombre,activo=False).exists():
             proveedor = ProveedorProducto.objects.get(nombre__iexact=nombre,activo=False)
@@ -281,7 +281,9 @@ def nuevo_proveedor_producto(request):
         elif ProveedorProducto.objects.filter(nombre__iexact=nombre).exists():
             messages.error(request, 'Proveedor ya existente.')
         elif form.is_valid():
-            form.save(commit=True)
+            nuevo_proveedor = form.save(commit=False)
+            nuevo_proveedor.nombre = nombre
+            nuevo_proveedor.save()
             messages.success(request, 'Proveedor creado correctamente.')
             return redirect("proveedores_productos")
     else:
@@ -296,11 +298,13 @@ def modificar_proveedor_producto(request, pk):
     
     form = ProveedorProductoForm(request.POST or None, instance=proveedor)
     if request.method == "POST":
-        nombre= request.POST['nombre']
+        nombre= request.POST['nombre'].strip().upper()
         if ProveedorProducto.objects.filter(nombre__iexact=nombre).exclude(id=pk).exists():
-            messages.error(request, 'Nombre de proveedor ya exitente. Por favor ingrese otro nombre.')
+            messages.error(request, 'Nombre de proveedor ya exitente. Por favor, ingrese otro nombre.')
         elif form.is_valid():
-            form.save(commit= True)
+            proveedor = form.save(commit= False)
+            proveedor.nombre = nombre
+            proveedor.save()
             messages.success(request, 'Proveedor modificado correctamente.')
             return redirect("proveedores_productos")
     return render(request, "entidad/proveedor_producto_form.html", {'form': form,
@@ -315,7 +319,7 @@ def eliminar_proveedor_producto(request, pk):
     if request.method == "POST":
         proveedor.activo = False
         proveedor.save()
-        messages.success(request, 'Proveedor eliminado correctamente')
+        messages.success(request, 'Proveedor eliminado correctamente.')
         return redirect('proveedores_productos')
 
     return render(request, "entidad/confirmar_eliminacion.html", {
@@ -366,7 +370,6 @@ def abrir_caja(request):
     caja = Caja.objects.filter(activo=True).first()
 
     if caja:
-        # Si ya hay una caja abierta, no se puede abrir otra
         return redirect('caja')
     if request.method=='POST':
         form=AperturaCajaForm(request.POST)
@@ -397,11 +400,11 @@ def  cerrar_caja(request):
             caja.fecha_cierre = timezone.now()
             caja.save()
             if realizar_backup():
-                messages.success(request, 'Backup realizado con éxito.')
+                messages.success(request, 'Copia de seguridad realizado con éxito.')
                 return redirect('caja')
                 
             else:
-                messages.error(request, 'No se pudo realizar el backup.')
+                messages.error(request, 'No se pudo realizar la copia de seguridad.')
                 return redirect('caja')
     return render(request, 'entidad/cerrar_caja.html', {'caja': caja})
 
@@ -481,13 +484,12 @@ def crear_venta(request):
     empleado= request.user
     if request.method == 'POST':
         if not Caja.objects.filter(activo=True):
-            messages.error(request, 'No tienes ninguna caja abierta para realizar la venta. Primero abre una')
-            return redirect('crear_venta')
+            messages.error(request, 'No tienes ninguna caja abierta para realizar la venta. Primero abre una.')
+            return redirect('caja')
         
-        # Obtener los datos del formulario
         cliente_id = request.POST.get('cliente')
-        if not cliente_id:  # Esto cubrirá tanto None como una cadena vacía
-            messages.error(request, 'NECESITAS CARGAR CLIENTE')
+        if not cliente_id:
+            messages.error(request, 'Necesitas cargar un cliente')
             return redirect('crear_venta')
         metodo_pago = request.POST.get('metodo_pago')
         productos_json = request.POST.get('productos')
@@ -497,20 +499,16 @@ def crear_venta(request):
             descuento=0
         else:
             descuento=Decimal(descuento)
-        # Convertir los productos y cantidades a listas
         productos = json.loads(productos_json)
         cantidades = json.loads(cantidades_json)
 
-        #PROBANDO VALIDACION DE STOCK
         for i,producto_id in enumerate(productos):
             producto=Producto.objects.get(id=producto_id)
             cantidad= int(cantidades[i])
             if cantidad>producto.cantidad:
                 messages.error(request, 'No hay suficiente stock del producto '+ producto.nombre)
                 return redirect('crear_venta')
-
-
-        # Calcular el total de la venta
+        
         total_venta_sDes = 0
         cantidadprod= 0
         for i, producto_id in enumerate(productos):
@@ -597,7 +595,7 @@ def ventas(request, pk):
     caja= Caja.objects.get(id=pk)
     ventas_list = Venta.objects.filter(caja=caja)
     return render(request, 'entidad/ventas.html', {'ventas': ventas_list,
-                                                    'caja': pk})
+                                                    'title': f'Registros de la caja: {caja.id}'})
 @login_required
 def detalle_venta(request, pk):
     if not request.user.has_perm('entidad.view_detalleventa'):
@@ -613,32 +611,22 @@ def detalle_venta(request, pk):
 
 @login_required
 def detalle_venta_pdf(request, pk):
-    # Obtener la venta
     venta = Venta.objects.get(id=pk)
-    
-    # Obtener el detalle de la venta y los productos asociados
     detalle_venta = DetalleVenta.objects.get(venta=venta)
     detalle_venta_producto_list = DetalleVentaXProducto.objects.filter(detalle_venta=detalle_venta)
-
-    # Calcular el total sin descuento
     total_sin_descuento = 0
     for dxp in detalle_venta_producto_list:
         producto = dxp.producto
         cantidad = dxp.cantidad
         subtotal_producto = producto.precio * cantidad
         total_sin_descuento += subtotal_producto
-
-       
         dxp.subtotal_producto = subtotal_producto
 
-    
     descuento = venta.descuento
     total_con_descuento = total_sin_descuento - (total_sin_descuento * (descuento / 100)) if descuento else total_sin_descuento
 
-    
     total_final = total_con_descuento
 
-    
     html_content = render_to_string("entidad/detalle_venta_pdf.html", {
         'venta': venta,
         'detalle_venta': detalle_venta,
@@ -649,11 +637,9 @@ def detalle_venta_pdf(request, pk):
         'descuento': descuento
     })
 
-    # Crear la respuesta PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="detalle_venta_{venta.id}.pdf"'
 
-    # Usar xhtml2pdf para convertir el HTML a PDF
     pisa_status = pisa.CreatePDF(html_content, dest=response)
     if pisa_status.err:
         return HttpResponse("Error generando el PDF", status=500)
@@ -677,12 +663,14 @@ def venta_exitosa(request, pk):
 def ventasactual(request):
     if not request.user.has_perm('entidad.view_venta'):
         return redirect('permiso_denegado')
+    try:
+        caja = Caja.objects.get(activo=True)
+    except Caja.DoesNotExist:
+        messages.error(request, 'Por favor, abre una caja para ver el registro de ventas.')
+        return redirect('caja')
     
-    caja= Caja.objects.get(activo=True)
     ventas_list = Venta.objects.filter(caja=caja)
-    return render(request, 'entidad/ventas.html', {'ventas':ventas_list,
-                  'caja':caja.id})
-
+    return render(request, 'entidad/ventas.html', {'ventas': ventas_list, 'title': 'Registros de ventas'})
 
 # CLIENTES
 @login_required
@@ -690,7 +678,7 @@ def clientes(request, template_name="entidad/clientes.html"):
     if not request.user.has_perm('entidad.view_cliente'):
         return redirect('permiso_denegado')
     
-    cliente_list= Cliente.objects.all()
+    cliente_list= Cliente.objects.filter(activo=True)
     dato={"clientes": cliente_list}
     return render(request, template_name, dato)
 
@@ -701,24 +689,48 @@ def nuevo_cliente(request):
         return redirect('permiso_denegado')
     
     if request.method == "POST":
+        dni=request.POST['dni']
         form= ClienteForm(request.POST)
-        if form.is_valid():
-            form.save(commit=True)
+        if Cliente.objects.filter(dni__iexact=dni,activo=False).exists():
+            cliente = Cliente.objects.get(dni__iexact=dni,activo=False)
+            cliente.nombre = request.POST['nombre'].strip().lower().capitalize()
+            cliente.apellido = request.POST['apellido'].strip().lower().capitalize()
+            cliente.correo = request.POST['correo']
+            cliente.telefono = request.POST['telefono']
+            cliente.activo = True
+            cliente.save()
             return redirect("crear_venta")
+        elif Cliente.objects.filter(dni__iexact=dni).exists():
+            messages.error(request, ' Este cliente ya existe.')
+        elif form.is_valid():
+            cliente = form.save(commit=False)
+            cliente.nombre = form.cleaned_data['nombre'].strip().lower().capitalize()
+            cliente.apellido = form.cleaned_data['apellido'].strip().lower().capitalize()
+            cliente.save()
+            return redirect("crear_venta")
+  
     else:
         form= ClienteForm()
     return render(request, "entidad/cliente_form.html", {"form":form})
 
 @login_required
-def modificar_cliente(request, pk, template_name="entidad/cliente_form.html"):
+def modificar_cliente(request, pk, template_name="entidad/modificar_cliente.html"):
     if not request.user.has_perm('entidad.change_cliente'):
         return redirect('permiso_denegado')
     
     cliente= Cliente.objects.get(id=pk)
     form= ClienteForm(request.POST or None, instance=cliente)
     if request.method == "POST":
-        if form.is_valid():
-            form.save(commit=True)
+        dni=request.POST['dni']
+        if Cliente.objects.filter(dni=dni).exclude(id=pk).exists():
+            messages.error(request, 'Ya se encuentra un cliente con ese DNI.')
+
+        elif form.is_valid():
+            cliente= form.save(commit=False)
+            cliente.nombre = form.cleaned_data['nombre'].strip().lower().capitalize()
+            cliente.apellido = form.cleaned_data['apellido'].strip().lower().capitalize()
+            cliente.save()
+            messages.error(request, 'Cliente modificado con éxito.')
             return redirect("clientes")
         
     dato={"form": form}
@@ -752,7 +764,8 @@ def ventas_clientes(request, pk):
     
     cliente = Cliente.objects.get(id=pk)
     ventas = Venta.objects.filter(cliente=cliente)
-    return render(request, 'entidad/ventas.html', {'ventas':ventas})
+    return render(request, 'entidad/ventas.html', {'ventas':ventas,
+                                                   'title': f'Cliente: {cliente.nombre} {cliente.apellido}'})
 
 
 
@@ -761,9 +774,9 @@ def ventas_clientes(request, pk):
 
 from django.contrib.auth import authenticate, login, logout
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 
-
+@login_required
 def usuarios(request):
     usuarios_list= User.objects.filter().exclude(username='admin')
     return render(request, 'login/usuarios.html', {'usuarios': usuarios_list})
@@ -773,44 +786,50 @@ def usuarios(request):
 def nuevo_usuario(request):
     if not request.user.has_perm('entidad.delete_caja'):
         return redirect('permiso_denegado')
+
+    if not request.user.has_perm('entidad.delete_caja'):
+        return redirect('permiso_denegado')
     
     if request.method == 'POST':
-        username = request.POST['username']
         form = CustomUserCreationForm(request.POST)
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Usuario ya existente!')
-        elif form.is_valid():
+        if form.is_valid():
             user = form.save(commit=False)
-            user.first_name = form.cleaned_data.get('first_name')
-            user.last_name = form.cleaned_data.get('last_name')
+            user.first_name = form.cleaned_data.get('first_name').strip().lower().capitalize()
+            user.last_name = form.cleaned_data.get('last_name').strip().lower().capitalize()
             user.email = form.cleaned_data.get('email')
             user.save()
-            # Asignar el grupo de permisos
+
             group = form.cleaned_data.get('group')
             user.groups.add(group)
             messages.success(request, 'Cuenta creada correctamente')
-            return redirect('home')
-        else:
-            messages.error(request, 'Please correct the errors below')
+            return redirect('usuarios')
     else:
         form = CustomUserCreationForm()
     return render(request, 'login/usuario_form.html', {'form': form})
 
+@login_required
 def modificar_usuario(request, pk):
+    if not request.user.has_perm('entidad.delete_caja'):
+        return redirect('permiso_denegado')
+
     usuario = User.objects.get(id=pk)
     form = UserModifyForm(request.POST or None, instance=usuario)
     if request.method == 'POST':
         if form.is_valid:
-            usuario = form.save(commit=False)  # Guarda los campos básicos
-            usuario.save()  # Guardar primero el usuario
-            # Actualizar el grupo seleccionado
+            usuario = form.save(commit=False)
+            usuario.first_name = form.cleaned_data.get('first_name').strip().lower().capitalize()
+            usuario.last_name = form.cleaned_data.get('last_name').strip().lower().capitalize()
+            usuario.save()
+
             group = form.cleaned_data['group']
-            usuario.groups.clear()  # Limpia los grupos existentes
-            usuario.groups.add(group)  # Añade el grupo seleccionado
-            return redirect('usuarios')  # Redirige a la vista deseada
+            usuario.groups.clear()
+            usuario.groups.add(group)
+            messages.success(request, 'Modificado con éxito.')
+            return redirect('usuarios')
         
     return render(request, 'login/modificar_usuario.html', {'form':form, 'usuario': usuario})
 
+@login_required
 def change_password_user(request, pk):
     if not request.user.has_perm('entidad.delete_caja'):
         return redirect('permiso_denegado')
@@ -826,14 +845,14 @@ def change_password_user(request, pk):
         form = SetPasswordForm(usuario)
     return render(request, 'login/cambiar_contraseña.html', {'form': form, 'usuario': usuario})
 
+@login_required
 def eliminar_usuario(request, pk):
     if not request.user.has_perm('entidad.delete_caja'):
         return redirect('permiso_denegado')
 
     usuario = User.objects.get(id=pk)
     if request.method == 'POST':
-        usuario.is_active= False
-        usuario.save()
+        usuario.delete()
         messages.success(request, 'Usuario eliminado con éxito.')
         return redirect('usuarios')
     
@@ -888,6 +907,7 @@ def login_logout(request):
 
 
 #GRAFICOS
+@login_required
 def clientes_mas_ventas(request):
     clientes_ventas = (
         Cliente.objects.filter(activo=True)  
@@ -910,10 +930,8 @@ def clientes_mas_ventas(request):
         'titulo': 'Clientes con mas compras',
         'datos_grafico': datos_json
         })
-
+@login_required
 def productos_mas_vendidos(request):
-  
-   
     productos_ventas = (
         Producto.objects.filter(activo=True)  
         .annotate(

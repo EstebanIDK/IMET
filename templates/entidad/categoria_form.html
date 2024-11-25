@@ -7,9 +7,9 @@
 <div class="form-container">
     <form action="" method="post" class="custom-form">
         {% csrf_token %}
-        <div class="input-group">
+        <div class="input-group" >
             <label for="nombre" class="custom-label">Nombre</label>
-            {{ form.nombre|add_class:"custom-input" }}
+            {{ form.nombre|attr:"pattern:^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"|attr:"placeholder:Ingrese nombre categoría"|add_class:"custom-input" }}
         </div>
         <div class="button-group">
             <a href="{% url 'categorias' %}" class="btn btn-danger">Volver</a>
