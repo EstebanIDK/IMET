@@ -29,7 +29,7 @@
                             <select id="productos" class="form-control select2-products">
                                 <option value="">Buscar producto...</option>
                                 {% for producto in productos %}
-                                    <option value="{{ producto.id }}" data-precio="{{ producto.precio }}">
+                                    <option value="{{ producto.id }}" data-precio="{{ producto.precio }}"data-stock="{{ producto.cantidad }}">
                                         {{ producto.id }} | {{ producto.nombre }} | {{ producto.marca }} | ${{ producto.precio }} | Stock: {{ producto.cantidad }}
                                     </option>
                                 {% endfor %}
@@ -109,6 +109,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         // Inicialización de Select2 después de que todos los recursos están cargados
+        // Inicialización de Select2 después de que todos los recursos están cargados
         window.onload = function() {
             $('#cliente').select2({
                 placeholder: "Buscar cliente...",
@@ -127,46 +128,89 @@
         let totalVenta = 0;
 
         function agregarProducto() {
-            const selectProducto = document.getElementById('productos');
-            const cantidadInput = document.getElementById('cantidad');
+        const selectProducto = document.getElementById('productos');
+        const cantidadInput = document.getElementById('cantidad');
 
-            const productoId = selectProducto.value;
-            const cantidad = parseInt(cantidadInput.value);
+        const productoId = selectProducto.value;
+        const cantidad = parseInt(cantidadInput.value);
 
-            if (productoId && cantidad > 0) {
-                const precio = parseFloat(selectProducto.options[selectProducto.selectedIndex].dataset.precio);
-                const subtotal = precio * cantidad;
+        if (productoId && cantidad > 0) {
+            const precio = parseFloat(selectProducto.options[selectProducto.selectedIndex].dataset.precio);
+            const stock = parseInt(selectProducto.options[selectProducto.selectedIndex].dataset.stock);
 
+            // Validar si el producto no tiene stock
+            if (stock === 0) {
+                alert(`El producto no tiene stock disponible.`);
+                return;
+            }
+
+            // Validar si la cantidad supera el stock disponible
+            if (cantidad > stock) {
+                alert(`La cantidad solicitada supera el stock disponible (${stock}).`);
+                return;
+            }
+
+            // Verificar si el producto ya está en la lista
+            const index = productosSeleccionados.indexOf(productoId);
+            if (index !== -1) {
+                // Si el producto ya existe, solo aumentamos la cantidad
+                cantidadesSeleccionadas[index] += cantidad;
+
+                if (cantidadesSeleccionadas[index] > stock) {
+                    alert(`La cantidad total (${cantidadesSeleccionadas[index]}) supera el stock disponible (${stock}).`);
+                    cantidadesSeleccionadas[index] -= cantidad; // Revertimos la operación
+                    return;
+                }
+
+                const nuevoSubtotal = precio * cantidadesSeleccionadas[index];
+                const row = document.getElementById('productos-table').rows[index];
+                row.cells[2].innerText = cantidadesSeleccionadas[index]; // Actualizamos la cantidad
+                row.cells[4].innerText = `$${nuevoSubtotal.toFixed(2)}`; // Actualizamos el subtotal
+            } else {
+                // Si el producto no existe, lo agregamos a la lista
                 productosSeleccionados.push(productoId);
                 cantidadesSeleccionadas.push(cantidad);
 
+                const subtotal = precio * cantidad;
+
+                // Agregar el nuevo producto a la tabla
                 const productosTable = document.getElementById('productos-table');
                 const newRow = productosTable.insertRow();
 
                 newRow.innerHTML = `
-                    <td class="action-column">
-                        <button type="button" class="remove-btn" onclick="quitarProducto(this, ${subtotal})">×</button>
-                    </td>
+                    <td><button type="button" class="remove-btn" onclick="quitarProducto(this, ${subtotal})">×</button></td>
                     <td>${selectProducto.options[selectProducto.selectedIndex].text}</td>
                     <td>${cantidad}</td>
                     <td>$${precio.toFixed(2)}</td>
                     <td>$${subtotal.toFixed(2)}</td>
                 `;
-
-                totalVenta += subtotal;
-                actualizarTotalConDescuento();
-
-                document.getElementById('productos_json').value = JSON.stringify(productosSeleccionados);
-                document.getElementById('cantidades_json').value = JSON.stringify(cantidadesSeleccionadas);
-
-                selectProducto.value = "";
-                cantidadInput.value = 1;
-                $('#productos').trigger('change');
-            } else {
-                alert("Por favor, seleccione un producto y una cantidad válida.");
             }
-        }
 
+            // Actualizamos el total de la venta
+            totalVenta = productosSeleccionados.reduce((total, _, idx) => {
+                const productoId = productosSeleccionados[idx];
+                const precio = parseFloat(document.querySelector(`#productos option[value="${productoId}"]`).dataset.precio);
+                const subtotal = cantidadesSeleccionadas[idx] * precio;
+                return total + subtotal;
+            }, 0);
+
+            actualizarTotalConDescuento();
+
+            // Guardamos los datos en los campos ocultos para enviar con el formulario
+            document.getElementById('productos_json').value = JSON.stringify(productosSeleccionados);
+            document.getElementById('cantidades_json').value = JSON.stringify(cantidadesSeleccionadas);
+
+            // Reiniciamos los campos de selección
+            selectProducto.value = "";
+            cantidadInput.value = 1;
+            $('#productos').trigger('change');
+        } else {
+            alert("Por favor, seleccione un producto y una cantidad válida.");
+        }
+    }
+
+
+        
         function quitarProducto(button, subtotal) {
             const row = button.closest('tr');
             const rowIndex = row.rowIndex - 1;

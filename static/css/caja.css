@@ -349,7 +349,7 @@ body {
     text-align: right;
 }
 
-/* Diseño responsivo */
+
 @media (max-width: 1400px) {
     .left-section {
         flex: 0 0 500px;

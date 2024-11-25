@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 
+
 urlpatterns = [
     path('', views.home, name="home"),
     path('permiso_denegado', views.permiso_denegado, name="permiso_denegado"),
@@ -57,7 +58,7 @@ urlpatterns = [
     path("login/", views.user_login, name="login"),
     path("logout/", views.login_logout, name='logout'),
     path("change_password/<int:pk>", views.change_password_user, name='change_password'),
-
+    
 
     
     # GRAFICOS

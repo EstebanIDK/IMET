@@ -1,0 +1,282 @@
+/* Estilos para el Modal Principal */
+.success-container {
+    background-color: #282833;
+    border-radius: 8px;
+    padding: 2rem;
+    color: #fff;
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.success-header {
+    background-color: #2f2f3d;
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    text-align: center;
+    border-left: 4px solid #FFA600;
+}
+
+.success-header h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    background-color: #2f2f3d;
+    padding: 1.5rem;
+    border-radius: 6px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-label {
+    color: #9e9ea7;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1.5rem 0;
+    background-color: #2f2f3d;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.products-table th {
+    background-color: #363647;
+    color: #9e9ea7;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+}
+
+.products-table td {
+    padding: 1rem;
+    border-top: 1px solid #363647;
+}
+
+.total-section {
+    background-color: #2f2f3d;
+    padding: 1.5rem;
+    border-radius: 6px;
+    text-align: right;
+    margin-bottom: 2rem;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Estilos para el Modal de Edición */
+#edicion .modal-content,
+#dynamicModal .modal-content {
+    background-color: #282833;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#edicion .modal-header,
+#dynamicModal .modal-header {
+    background-color: #2f2f3d;
+    border-bottom: 1px solid #363647;
+    padding: 1.5rem;
+    color: white;
+}
+
+#edicion .modal-title,
+#dynamicModal .modal-title {
+    color: white;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+#edicion .btn-close,
+#dynamicModal .btn-close {
+    color: white;
+    opacity: 0.7;
+    filter: invert(1);
+}
+
+#edicion .modal-body,
+#dynamicModal .modal-body {
+    padding: 2rem;
+    background-color: #282833;
+    color: white;
+}
+
+#edicion .modal-body input, 
+#edicion .modal-body select, 
+#edicion .modal-body textarea,
+#dynamicModal .modal-body input, 
+#dynamicModal .modal-body select, 
+#dynamicModal .modal-body textarea {
+    background-color: #2f2f3d;
+    border: 1px solid #363647;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    width: 100%;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+#edicion .modal-body input:focus,
+#edicion .modal-body select:focus,
+#edicion .modal-body textarea:focus,
+#dynamicModal .modal-body input:focus,
+#dynamicModal .modal-body select:focus,
+#dynamicModal .modal-body textarea:focus {
+    border-color: #FFA600;
+    box-shadow: 0 0 0 0.2rem rgba(255, 166, 0, 0.25);
+    outline: none;
+}
+
+#edicion .modal-body label,
+#dynamicModal .modal-body label {
+    color: #e0e0e0;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+#edicion .modal-footer,
+#dynamicModal .modal-footer {
+    background-color: #2f2f3d;
+    border-top: 1px solid #363647;
+    padding: 1rem;
+}
+
+/* Estilos para los Botones de Acción */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    min-width: 160px;
+    color: #ffffff;
+}
+
+.button-green {
+    background-color: #2ecc71;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(46, 204, 113, 0.2);
+}
+
+.button-green:hover {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+}
+
+.button-green:active {
+    transform: translateY(0);
+}
+
+.button-red {
+    background-color: #e74c3c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+}
+
+.button-red:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+}
+
+.button-red:active {
+    transform: translateY(0);
+}
+
+/* Estilos para botones primarios y secundarios en modales */
+.btn-primary {
+    background-color: #FFA600;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #e69500;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #363647;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #42424f;
+    transform: translateY(-1px);
+}
+
+/* Estados deshabilitados */
+.button:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .button {
+        width: 100%;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Utilidades adicionales */
+.print-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}

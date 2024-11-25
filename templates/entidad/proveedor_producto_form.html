@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="h1-pueva">{{ tipo }} Proveedor{{ dato }}</h1>
+<h1 class="form-title">{{ tipo }} Proveedor {{ dato }}</h1>
 
 <div class="form-container">
     <form action="" method="post">
         {% csrf_token %}
-        <div class="input-group">
+        <div class="custom-form">
             {{ form.as_p }}
         </div>
-        <div class="form-actions">
-            <a href="{% url 'proveedores_productos' %}" class="btn-prueva">Volver</a>
-            <button type="submit" value="Guardar" class="btn-prueva2">Guardar</button>
+        <div class="button-group">
+            <a href="{% url 'proveedores_productos' %}" class="btn btn-danger">Volver</a>
+            <button type="submit" value="Guardar" class="btn btn-success">Guardar</button>
         </div>
     </form>
     <div class="messages">
@@ -20,4 +20,127 @@
     </div>
 </div>
 
+<style>
+/* Diseño general */
+.form-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #2a2a3a;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.form-title {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Estructura de los inputs */
+.custom-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.custom-form input,
+.custom-form select,
+.custom-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #3c3c3c;
+    border-radius: 8px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.custom-form input:focus,
+.custom-form select:focus,
+.custom-form textarea:focus {
+    outline: none;
+    border-color: rgba(29, 53, 117, 0.333);
+    box-shadow: 0 0 0 2px rgba(29, 53, 117, 0.333);
+}
+
+/* Diseño del label */
+.custom-form label {
+    color: #ffffff; /* Gris oscuro */
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+/* Botones */
+.button-group {
+    display: flex;
+    gap: 2rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .form-title {
+        font-size: 2rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .custom-form {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}

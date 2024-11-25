@@ -1,61 +1,149 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
-{%load static%}
+{% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{% static 'css/categorias_form.css' %}">
-    
-</head>
-<h1 class="h1-prueva">{{ tipo }} categoría {{ dato }}</h1>
+<h1 class="form-title">{{ tipo }} Categoría {{ dato }}</h1>
 
 <div class="form-container">
-    <form action="" method="post" class="formulario-prueva">
-      {% csrf_token %}
-      
-      <div class="input-group">
-        <label for="nombre" class="label-prueva">Nombre</label>
-          {{ form.nombre|add_class:"input-prueva" }}
-      </div>
-      
-      <div class="form-actions">
-        <a href="{% url 'categorias' %}" class="btn-prueva">Volver</a>
-        <button type="submit" value="Grabar" class="btn-prueva2">Guardar</button>
-      </div>
+    <form action="" method="post" class="custom-form">
+        {% csrf_token %}
+        <div class="input-group">
+            <label for="nombre" class="custom-label">Nombre</label>
+            {{ form.nombre|add_class:"custom-input" }}
+        </div>
+        <div class="button-group">
+            <a href="{% url 'categorias' %}" class="btn btn-danger">Volver</a>
+            <button type="submit" value="Grabar" class="btn btn-success">Guardar</button>
+        </div>
     </form>
-    {% comment %} #MENSAJES DE VALIDACIONES! {% endcomment %}
     <div class="messages">
         {% for message in messages %}
             <p>{{ message }}</p>
         {% endfor %}
     </div>
 </div>
-{% endblock %}
 
-<!-- Modal para agregar nueva categoría -->
-{% comment %} <div class="modal fade" id="newCategoryModal" tabindex="-1" aria-labelledby="newCategoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="newCategoryModalLabel" style="color: black;">Agregar Nueva Categoría</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <form method="post" action="{% url 'nueva_categoria_2' %}">
-                  {% csrf_token %}
-                  <div class="form-group">
-                      <label for="categoria-nombre" style="color: black;">Nombre de la Categoría</label>
-                      <input type="text" id="categoria-nombre" name="nombre" class="form-control" placeholder="Ingrese el nombre de la categoría">
-                  </div>
-                  <div class="form-actions">
-                      <button type="submit" class="btn btn-primary">Guardar Categoría</button>
-                  </div>
-              </form>
-          </div>
-      </div>
-  </div>
-</div> {% endcomment %}
+<style>
+/* Contenedor general del formulario */
+.form-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #2a2a3a;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Título del formulario */
+.form-title {
+    text-align: center;
+    color: #ffffff;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+}
+
+/* Inputs y etiquetas del formulario */
+.custom-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.custom-label {
+    font-size: 1.1rem;
+    color: #bbbbbb;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.custom-input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #3c3c3c;
+    border-radius: 8px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+    outline: none;
+    border-color: rgba(29, 53, 117, 0.333);
+    box-shadow: 0 0 0 2px rgba(29, 53, 117, 0.333);
+}
+
+/* Botones */
+.button-group {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Mensajes de validación */
+.messages p {
+    color: #f8d7da;
+    background-color: #721c24;
+    padding: 0.8rem;
+    border-radius: 5px;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .form-title {
+        font-size: 2rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

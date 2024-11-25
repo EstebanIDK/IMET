@@ -262,6 +262,6 @@ label[for="productos"] {
     border-radius: 5px;
     text-align: center;
     text-decoration: none;
-    float: right;
+    /* float: right; */
     transition: background-color 0.3s, transform 0.3s;
 }

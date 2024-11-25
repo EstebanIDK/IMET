@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caja</title>
     <link rel="stylesheet" href="{% static 'css/caja.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modales.css' %}">
 </head>
 <div class="messages">
     {% for message in messages %}
@@ -43,12 +44,18 @@
                 </div>
 
                 <div class="action-buttons">
-                    <a href="{% url 'ingresar_dinero' %}" class="button button-green">
+                    <button type="button" 
+                            id="successModal" 
+                            onclick="abrir_modal_edicion('{% url 'ingresar_dinero' %}')" 
+                            class="button button-green">
                         Ingresar dinero
-                    </a>
-                    <a href="{%url 'retirar_dinero' %}" class="button button-red">
+                    </button>
+                    
+                    <button type="button" 
+                            onclick="abrir_modal_edicion('{% url 'retirar_dinero' %}')" 
+                            class="button button-red">
                         Retirar dinero
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -134,10 +141,40 @@
 {% block extra_js %}
 <script type="text/javascript">
     var $ = jQuery.noConflict();
+
+    
     function abrir_modal_edicion(url) {
         $('#edicion').load(url, function() {
             $(this).modal('show');
         });
     }
+
+    
+    $(document).on('submit', '#retirarDineroForm', function(event) {
+        event.preventDefault(); 
+        const form = $(this);
+
+        $.ajax({
+            url: form.attr('action'),
+            type: form.attr('method'),
+            data: form.serialize(),
+            success: function(response) {
+                
+                const hasErrors = $(response).find('.alert-danger').length > 0;
+
+                
+                $('#edicion').html(response);
+
+                if (!hasErrors) {
+                    
+                    $('#edicion').modal('hide');
+                    location.reload(); 
+                }
+            },
+            error: function(xhr) {
+                console.error("Error al procesar el formulario:", xhr.responseText);
+            }
+        });
+    });
 </script>
 {% endblock %}

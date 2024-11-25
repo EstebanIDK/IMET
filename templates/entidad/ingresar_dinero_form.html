@@ -1,16 +1,39 @@
-{% extends "base.html" %}
-{% load widget_tweaks %}
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header text-white py-2">
+            <h5 class="modal-title">Ingresar Dinero</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-3">
+            <form id="ingresarDineroForm" action="{% url 'ingresar_dinero' %}" method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3" >
+                    {{ form.tipo.label_tag }}
+                    <div style="margin-top: 0.5rem;">
+                      {{ form.tipo }}
+                    </div>
+                  </div>
+                  <div  >
+                    {{ form.cantidad.label_tag }}
+                    <div>
+                      {{ form.cantidad }}
+                    </div>
+                  </div>
+                  <div class="mb-3" >
+                    {{ form.descripcion.label_tag }}
+                    <div >
+                      {{ form.descripcion }}
+                    </div>
+                  </div>
+            </form>
+        </div>
 
-{% block content %}
-<div class="messages">
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                    >Cancelar</button>
+            <button type="submit" class="btn btn-primary" form="ingresarDineroForm" 
+                    >Confirmar</button>
+          </div>
+    </div>
 </div>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Ingresar</button>
-    <a href="{% url 'caja' %}" class="btn btn-danger">Cancelar</a>
-    </form>
-{%endblock%}

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required,permission_required
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import render
 
 
 from django.http import HttpResponse, JsonResponse
@@ -428,52 +429,36 @@ def ingresar_dinero(request):
         form = IngresarDineroForm()
     return render(request,'entidad/ingresar_dinero_form.html', {'form': form})
 
+
 @login_required
 def retirar_dinero(request):
     if not request.user.has_perm('entidad.view_caja'):
         return redirect('permiso_denegado')
-
+    
     empleado = request.user
     caja = Caja.objects.filter(activo=True).first()
 
-    if not caja:
-        messages.error(request, 'No hay una caja activa.')
-        return redirect('caja')  # O a otra vista relevante
-
     if request.method == 'POST':
         form = RetirarDineroForm(request.POST)
-
         if form.is_valid():
-            cantidad = form.cleaned_data["cantidad"]
-            tipo = form.cleaned_data["tipo"]
-            descripcion = form.cleaned_data["descripcion"]
-
-            if caja.saldo_total < cantidad:
-                messages.error(request, 'El monto ingresado excede el monto total de la caja.')
+            if form.cleaned_data["cantidad"] > caja.saldo_total:
+                messages.error(request, "El monto supera el saldo disponible en la caja.")
             else:
-                # Crear el movimiento de caja
                 MovimientoCaja.objects.create(
                     caja=caja,
                     empleado=empleado,
-                    tipo=tipo,
-                    cantidad=cantidad,
-                    descripcion=descripcion,
+                    tipo=form.cleaned_data["tipo"],
+                    cantidad=form.cleaned_data["cantidad"],
+                    descripcion=form.cleaned_data["descripcion"]
                 )
-
-                # Actualizar los valores de la caja
-                caja.total_egresado += cantidad
-                caja.saldo_total -= cantidad
+                caja.total_egresado += form.cleaned_data["cantidad"]
+                caja.saldo_total -= form.cleaned_data["cantidad"]
                 caja.save()
-
-                messages.success(request, 'Se retiró el dinero exitosamente.')
                 return redirect('caja')
-        else:
-            # Manejo de errores del formulario
-            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+        return render(request, 'entidad/retirar_dinero_form.html', {'form': form})
     else:
         form = RetirarDineroForm()
-
-    return render(request, 'entidad/retirar_dinero_form.html', {'form': form})
+        return render(request, 'entidad/retirar_dinero_form.html', {'form': form})
 
 
 @login_required
@@ -534,11 +519,10 @@ def crear_venta(request):
             subtotal = producto.precio * cantidad
             total_venta_sDes += subtotal
 
-            #DESCONTAR STOCK DEL PRODUCTO
+            
             producto.cantidad -= cantidad
             producto.save()
 
-            #CONTADOR DE CADA UNO DE LOS PRODUCTOS
             cantidadprod += 1
 
 
@@ -549,10 +533,10 @@ def crear_venta(request):
                 total_venta_conDes = total_venta_sDes 
 
 
-        # Obtener la caja del empleado (suponiendo que cada empleado tiene una caja activa)
+        
         caja = Caja.objects.get(activo=True)
 
-        # Crear la venta
+        
         nueva_venta = Venta.objects.create(
             caja=caja,
             cliente_id=cliente_id,
@@ -562,30 +546,30 @@ def crear_venta(request):
             descuento=descuento
         )
 
-        # Crear el detalle de la venta
+        
         detalle_venta = DetalleVenta.objects.create(
                 venta=nueva_venta,
                 sub_total=total_venta_conDes,
                 cantidad=cantidadprod,
             )
-        # Crear los detalles de venta y asociar los productos
+        
         for i, producto_id in enumerate(productos):
             producto = Producto.objects.get(id=producto_id)
             cantidad = int(cantidades[i])
             subtotal = producto.precio * cantidad
 
-            # Crear la relación entre el detalle de la venta y el producto
+            
             DetalleVentaXProducto.objects.create(
                 detalle_venta=detalle_venta,
                 producto=producto,
                 cantidad=cantidad
             )
 
-        # Actualizar la caja con el total de la venta
+        
         caja.saldo_total += total_venta_conDes
         caja.save()
 
-        # Registrar el movimiento de caja
+        
         MovimientoCaja.objects.create(
             caja=caja,
             empleado= empleado,
@@ -593,10 +577,10 @@ def crear_venta(request):
             cantidad=total_venta_conDes
         )
 
-        return redirect('venta_exitosa', pk=nueva_venta.id)  # Redirigir a la lista de ventas o a donde prefieras
+        return redirect('venta_exitosa', pk=nueva_venta.id)
 
     else:
-        # Obtener los clientes y productos disponibles
+        
         clientes = Cliente.objects.all()
         productos = Producto.objects.filter(activo=True)
 
@@ -613,7 +597,7 @@ def ventas(request, pk):
     caja= Caja.objects.get(id=pk)
     ventas_list = Venta.objects.filter(caja=caja)
     return render(request, 'entidad/ventas.html', {'ventas': ventas_list,
-                                                   'caja': pk})
+                                                    'caja': pk})
 @login_required
 def detalle_venta(request, pk):
     if not request.user.has_perm('entidad.view_detalleventa'):
@@ -623,8 +607,8 @@ def detalle_venta(request, pk):
     detalle_venta = DetalleVenta.objects.get(venta=venta)
     detalle_venta_producto_list = DetalleVentaXProducto.objects.filter(detalle_venta= detalle_venta)
     return render(request, 'entidad/detalle_venta.html', {'venta' : venta,
-                                                          'detalle_venta': detalle_venta,
-                                                          'dxp': detalle_venta_producto_list})
+                                                            'detalle_venta': detalle_venta,
+                                                            'dxp': detalle_venta_producto_list})
 
 
 @login_required
@@ -644,17 +628,17 @@ def detalle_venta_pdf(request, pk):
         subtotal_producto = producto.precio * cantidad
         total_sin_descuento += subtotal_producto
 
-        # Guardar el subtotal por producto para pasarlo al template
+       
         dxp.subtotal_producto = subtotal_producto
 
-    # Aplicar el descuento si existe
+    
     descuento = venta.descuento
     total_con_descuento = total_sin_descuento - (total_sin_descuento * (descuento / 100)) if descuento else total_sin_descuento
 
-    # El total final es igual al total con descuento
+    
     total_final = total_con_descuento
 
-    # Pasar todos los valores a la plantilla
+    
     html_content = render_to_string("entidad/detalle_venta_pdf.html", {
         'venta': venta,
         'detalle_venta': detalle_venta,
@@ -673,6 +657,7 @@ def detalle_venta_pdf(request, pk):
     pisa_status = pisa.CreatePDF(html_content, dest=response)
     if pisa_status.err:
         return HttpResponse("Error generando el PDF", status=500)
+
     return response
 
 @login_required

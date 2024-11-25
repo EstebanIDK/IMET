@@ -1,25 +1,162 @@
-{% extends "base.html" %}
-{% block content %}
-{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .success-container {
+            background-color: #282833;
+            border-radius: 8px;
+            padding: 2rem;
+            color: #fff;
+            max-width: 800px;
+            margin: 2rem auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-<h1>
-    VENTA EXITOSA
-</h1>
+        .success-header {
+            background-color: #2f2f3d;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-left: 4px solid #FFA600;
+        }
 
-<div class="modal-body">
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <p><strong>VENTA #</strong>{{venta.id}}</p>
-            <p><strong>FECHA:</strong> {{venta.fecha}}</p>
+        .success-header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: #2f2f3d;
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-label {
+            color: #9e9ea7;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.5rem 0;
+            background-color: #2f2f3d;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .products-table th {
+            background-color: #363647;
+            color: #9e9ea7;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .products-table td {
+            padding: 1rem;
+            border-top: 1px solid #363647;
+        }
+
+        .total-section {
+            background-color: #2f2f3d;
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: right;
+            margin-bottom: 2rem;
+        }
+
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .print-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+
+        /* Estilo específico para el botón naranja manteniendo la clase btn-primary de Bootstrap */
+        .btn-primary.btn-orange {
+            background-color: #FFA600 !important;
+            border-color: #FFA600 !important;
+            color: white !important;
+        }
+
+        .btn-primary.btn-orange:hover {
+            background-color: #e69500 !important;
+            border-color: #e69500 !important;
+        }
+
+        /* Asegurar que los botones tengan el aspecto correcto */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+    {% load static %}
+
+    <div class="success-container">
+        <div class="success-header">
+            <h1>VENTA EXITOSA</h1>
         </div>
-        <div class="col-md-6">
-            <p><strong>EMPLEADO:</strong> {{venta.empleado}}</p>
-            <p><strong>CLIENTE:</strong> {{venta.cliente}}</p>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">VENTA #</span>
+                <span class="info-value">{{venta.id}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">FECHA</span>
+                <span class="info-value">{{venta.fecha}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">EMPLEADO</span>
+                <span class="info-value">{{venta.empleado}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">CLIENTE</span>
+                <span class="info-value">{{venta.cliente}}</span>
+            </div>
         </div>
-    </div>
-    <h5 class="mb-3">PRODUCTOS</h5>
-    <div class="table-responsive">
-        <table class="table table-dark table-hover">
+
+        <table class="products-table">
             <thead>
                 <tr>
                     <th>CANTIDAD</th>
@@ -34,19 +171,34 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center">No hay productos disponibles.</td>
+                        <td colspan="2" style="text-align: center;">No hay productos disponibles.</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-    <div class="text-end mt-3">
-        <p class="total">TOTAL: {{venta.total}}</p>
-    </div>
-</div>
 
-<a href="{% url 'detalle_venta_pdf' venta.id %}" class="btn btn-primary" target="_blank">Imprimir Detalles</a>
-<a href="{% url 'crear_venta' %}" class="btn btn-primary">Realizar una nueva venta</a>
-<a href="{% url 'caja' %}" class="btn btn-primary">Ir a caja</a>
+        <div class="total-section">
+            <span class="total-amount">TOTAL: {{venta.total}}</span>
+        </div>
 
-{% endblock %}
+        <div class="actions">
+            <a href="{% url 'detalle_venta_pdf' venta.id %}" class="btn btn-secondary" target="_blank">
+                <svg class="print-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Imprimir Detalles
+            </a>
+            <a href="{% url 'crear_venta' %}" class="btn btn-primary btn-orange">
+                Nueva Venta
+            </a>
+            <a href="{% url 'caja' %}" class="btn btn-secondary">
+                Ir a Caja
+            </a>
+        </div>
+    </div>
+
+    {% endblock %}
+</body>
+</html>
