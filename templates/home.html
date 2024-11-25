@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static%}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="banner">
+        <div class="banner-content">
+            <div class="banner-text">
+                <h1>IMET Ferretería <i class="fas fa-tools banner-icon"></i></h1>
+                <h2>Tu socio en construcción</h2>
+                <p>Bienvenido al sistema de gestion IMET</p>
+                <div class="banner-features">
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Calidad Garantizada</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="banner-overlay"></div>
+    </div>
+    <div class="charts-grid">
+        <a href="{% url 'productos_mas_vendidos' %}" class="chart-card">
+            <div class="card-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3>Productos Más Vendidos</h3>
+        </a>
+        <a href="{% url 'clientes_mas_ventas' %}" class="chart-card">
+            <div class="card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>Clientes Top</h3>
+        </a>
+
+        <div class="chart-card">
+            <div class="card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <h3>Precio del Dólar</h3>
+            <p>Dólar Oficial: ${{ dolar_oficial.venta }}</p>
+            <p>Dólar Blue: ${{ dolar_blue.venta }}</p>
+        </div>
+
+    </div>
+    {% if productos_stock_bajo %}
+    <div class="stock-alerts-wrapper">
+        <div class="stock-alerts-bar" onclick="toggleAlerts()">
+            <div class="bar-content">
+                <i class="fas fa-exclamation-triangle alert-icon"></i>
+                <h3>Productos con Stock Bajo ({{ productos_stock_bajo|length }})</h3>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="stock-alerts-container collapsed">
+            <div class="stock-alerts-list">
+                {% for producto in productos_stock_bajo %}
+                <div class="alert-item">
+                    <div class="alert-content">
+                        <span class="alert-product-name">{{ producto.nombre }}</span>
+                        <span class="alert-stock-badge stock-bajo">{{ producto.cantidad }}</span>
+                    </div>
+                    <a href="{% url 'modificar_producto' producto.id %}" class="alert-action">
+                        Gestionar Stock
+                    </a>
+                </div>
+                {% endfor %}
+    </div>
+</div>
+{% endif %}
+<script>
+    function toggleAlerts() {
+        const container = document.querySelector('.stock-alerts-container');
+        const toggleIcon = document.querySelector('.toggle-icon');
+        container.classList.toggle('collapsed');
+        toggleIcon.classList.toggle('rotated');
+    }
+</script>
+</body>
+</html>
+{%endblock%}

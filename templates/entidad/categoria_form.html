@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{%load static%}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{% static 'css/categorias_form.css' %}">
+    
+</head>
+<h1 class="h1-prueva">{{ tipo }} categoría {{ dato }}</h1>
+
+<div class="form-container">
+    <form action="" method="post" class="formulario-prueva">
+      {% csrf_token %}
+      
+      <div class="input-group">
+        <label for="nombre" class="label-prueva">Nombre</label>
+          {{ form.nombre|add_class:"input-prueva" }}
+      </div>
+      
+      <div class="form-actions">
+        <a href="{% url 'categorias' %}" class="btn-prueva">Volver</a>
+        <button type="submit" value="Grabar" class="btn-prueva2">Guardar</button>
+      </div>
+    </form>
+    {% comment %} #MENSAJES DE VALIDACIONES! {% endcomment %}
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+<!-- Modal para agregar nueva categoría -->
+{% comment %} <div class="modal fade" id="newCategoryModal" tabindex="-1" aria-labelledby="newCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="newCategoryModalLabel" style="color: black;">Agregar Nueva Categoría</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form method="post" action="{% url 'nueva_categoria_2' %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                      <label for="categoria-nombre" style="color: black;">Nombre de la Categoría</label>
+                      <input type="text" id="categoria-nombre" name="nombre" class="form-control" placeholder="Ingrese el nombre de la categoría">
+                  </div>
+                  <div class="form-actions">
+                      <button type="submit" class="btn btn-primary">Guardar Categoría</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div> {% endcomment %}

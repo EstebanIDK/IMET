@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/cajas_registro.css' %}">
+
+<h1 class="categories-title">REGISTRO DE CAJAS</h1>
+
+<table class="table-custom" id="table-registrocajas">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>EMPLEADO</th>
+            <th>FECHA DE APERTURA</th>
+            <th>MONTO INICIAL</th>
+            <th>TOTAL INGRESADO</th>
+            <th>TOTAL RETIRADO</th>
+            <th>SALDO TOTAL</th>
+            <th>ACTIVO</th>
+            <th>OPCIONES</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for caja in cajas %}
+            <tr>
+                <td>{{ caja.id }}</td>
+                <td>{{ caja.empleado }}</td>
+                <td>{{ caja.fecha_apertura }}</td>
+                <td>{{ caja.monto_inicial }}</td>
+                <td>{{ caja.total_ingresado }}</td>
+                <td>{{ caja.total_egresado }}</td>
+                <td>{{ caja.saldo_total }}</td>
+                <td>{{ caja.activo }}</td>
+                <td>
+                    <a href="{% url 'ventas' caja.id %}" class="btn btn-secondary">VER</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="9">No hay cajas disponibles.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#table-registrocajas').DataTable({
+            "paging": true,
+            "ordering": true,  // Habilitar el ordenamiento
+            "columnDefs": [
+                { "orderable": false, "targets": [0, 1, 2, 4, 5, 6, 7, 8] }  // Deshabilitar el ordenamiento en todas las columnas excepto Monto Inicial (3) y Total Retirado (5)
+            ],
+            "searching": true,
+            "lengthChange": false,
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sPrevious": "Anterior",
+                    "sNext": "Siguiente",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

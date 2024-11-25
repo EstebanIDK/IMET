@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load static%}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Productos</title>
+    <link rel="stylesheet" href="{% static 'css/productos_form.css' %}">
+</head>
+<div class="product-form-container">
+    <header class="form-header">
+        <h1>{{ tipo }} producto{{ dato }}</h1>
+    </header>
+    
+    <form class="new-product-form" method="post">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.nombre.id_for_label }}">Nombre</label>
+                {% render_field form.nombre class="form-input custom-input" placeholder="Nombre del producto" %}
+            </div>
+            <div class="form-group">
+                <label for="proveedores">Proveedor/es</label>
+                <div class="input-group">
+                    <select id="proveedor-select" name="proveedores" class="form-select custom-select" multiple="multiple">
+                        {% for proveedor in form.proveedores.field.queryset %}
+                            <option value="{{ proveedor.id }}" {% if proveedor in form.instance.proveedores.all %}selected{% endif %}>
+                                {{ proveedor.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="{{ form.marca.id_for_label }}">Marca</label>
+                {% render_field form.marca class="form-input custom-input" placeholder="Marca del producto" %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.cantidad.id_for_label }}">Stock</label>
+                {% render_field form.cantidad class="form-input custom-input small-input" placeholder="0" %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.precio.id_for_label }}">Precio</label>
+                {% render_field form.precio class="form-input custom-input small-input" placeholder="0.00" %}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.categoria.id_for_label }}">Categoría</label>
+                <div class="input-group">
+                    {% render_field form.categoria class="form-select custom-select" %}
+                    
+                </div>
+            </div>
+            <div class="form-group full-width">
+                <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                {% render_field form.descripcion class="form-input custom-input form-textarea" placeholder="Descripción del producto" %}
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{% url 'productos' %}" class="btn btn-cancel">Volver</a>
+            <button type="submit" class="btn btn-save">Guardar</button>
+        </div>
+    </form>
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+        $('#proveedor-select').select2({
+            placeholder: 'Seleccionar proveedor/es',
+            allowClear: true,
+            closeOnSelect: false,
+            templateResult: formatState,
+            templateSelection: formatSelection,
+            width: '100%'
+        });
+    
+        function formatState(state) {
+            if (!state.id) {
+                return state.text;
+            }
+            var $state = $(
+                '<span><input type="checkbox" style="margin-right: 10px; accent-color: #ffa600;">' +
+                state.text + '</span>'
+            );
+            return $state;
+        }
+    
+        function formatSelection(state) {
+            return state.text;
+        }
+    });
+</script>
+{% endblock %}

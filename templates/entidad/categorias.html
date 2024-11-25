@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías</title>
+    <link rel="stylesheet" href="{% static 'css/categorias_tabla.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.min.css">
+</head>
+<h1 class="categories-title">Categorías</h1>
+
+<div class="messages">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
+
+<table id="tabla-categorias" class="table-custom">
+    <thead>
+        <tr>
+            <th class="column-nombre">Nombre</th>
+            {% if perms.auth.delete_categoria %}
+            <th class="column-acciones">Acciones</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for categoria in categorias %}
+        <tr>
+            <td class="column-nombre">{{ categoria.nombre }}</td>
+            <td class="column-acciones actions-column">
+                {% if perms.auth.delete_categoria %}
+                <a href="{% url 'modificar_categoria' categoria.id %}" class="icon-container icon-edit">
+                    <i class='bx bx-edit-alt'></i>
+                </a>
+                <a href="{% url 'eliminar_categoria' categoria.id %}" class="icon-container icon-delete">
+                    <i class='bx bx-trash'></i>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No hay categorías disponibles.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+{% if perms.auth.add_caja %}
+<div class="btn-container">
+    <a href="{% url 'nueva_categoria' %}" class="btn-add-category">
+        Nueva categoría
+    </a>
+</div>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#tabla-categorias').DataTable({
+            "paging": true,
+            "ordering": true,
+            "searching": true,
+            "lengthChange": false,
+            "columnDefs": [
+                {
+                    "targets": [0],  // Solo habilita el ordenamiento en la columna 'Nombre' (índice 0)
+                    "orderable": true
+                },
+                {
+                    "targets": [1],  // Deshabilita el ordenamiento en la columna 'Acciones' (índice 1)
+                    "orderable": false
+                }
+            ],
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sPrevious": "Anterior",
+                    "sNext": "Siguiente",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

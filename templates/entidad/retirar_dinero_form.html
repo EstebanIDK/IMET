@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="messages">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Retirar</button>
+    <a href="{% url 'caja' %}" class="btn btn-danger">Cancelar</a>
+    </form>
+{%endblock%}

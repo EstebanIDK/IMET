@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block content %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clientes</title>
+    <link rel="stylesheet" href="{% static 'css/clientes_tabla.css' %}">
+</head>
+<h1 class="products-title">CLIENTES</h1>
+<table class="table-custom" id="tabla-clientes">
+    <thead>
+        <tr>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+            <th>Información</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cliente in clientes %}
+            <tr>
+                <td>{{ cliente.dni }}</td>
+                <td>{{ cliente.nombre }}</td>
+                <td>{{ cliente.apellido }}</td>
+                <td>{{ cliente.correo }}</td>
+                <td>{{ cliente.telefono }}</td>
+                <td class="acciones-celda">
+                    <div class="acciones-container">
+                        <a href="{% url 'modificar_cliente' cliente.id %}" class="icon-container icon-edit">
+                            <i class='bx bx-edit-alt'></i>
+                        </a>
+                        {% if perms.auth.add_caja %}
+                        <a href="{% url 'eliminar_cliente' cliente.id %}" class="icon-container icon-delete">
+                            <i class='bx bx-trash'></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+                <td> 
+                    <a href="{% url 'ventas_clientes' cliente.id %}" class="btn btn-secondary">VER</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">No hay productos disponibles.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    var $ = jQuery.noConflict();
+    $(document).ready(function() {
+        $('#tabla-clientes').DataTable({
+            "paging": true,
+            "ordering": false,  // Deshabilitar ordenamiento en todas las columnas
+            "searching": true,  // Habilitar la búsqueda
+            "columnDefs": [
+                { "searchable": true, "targets": [0, 3] },  // Habilitar búsqueda solo en las columnas DNI y Correo
+                { "searchable": false, "targets": [1, 2, 4, 5, 6] }  // Deshabilitar búsqueda en otras columnas
+            ],
+            "lengthChange": false,  // Deshabilitar el cambio de cantidad de registros mostrados
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sPrevious": "Anterior",
+                    "sNext": "Siguiente",
+                    "sLast": "Último"
+                },
+                "oAria": {
+                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

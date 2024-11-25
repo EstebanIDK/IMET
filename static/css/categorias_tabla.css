@@ -1,0 +1,195 @@
+/* General */
+.container-fluid {
+  padding: 20px;
+}
+
+.search-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 25px;
+  padding-left: 20px;
+}
+
+.search-form {
+  width: 50%;
+  max-width: 500px;
+  padding: 10px;
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-form form {
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  flex-grow: 1;
+  height: 40px;
+  font-size: 16px;
+  padding: 8px 15px;
+  background-color: #1a1a1a;
+  border: none;
+  color: #ffffff;
+  border-radius: 20px 0 0 20px;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.search-input::placeholder {
+  color: #aaa;
+}
+
+.btn-search {
+  height: 40px;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 8px 20px;
+  background-color: #ffa600;
+  color: white;
+  border: none;
+  border-radius: 0 10px 10px 0;
+  transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+  background-color: #ff8c00;
+  transform: translateY(-2px);
+}
+
+/* Tabla */
+.table-custom {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.table-custom thead th {
+  background-color: #1e1e1e;
+  color: white;
+  text-align: left;
+  padding: 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 2px solid #343a40;
+}
+
+.table-custom tbody tr {
+  background-color: #2c2c2c;
+  color: white;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.table-custom td {
+  padding: 15px;
+  vertical-align: middle;
+  border-right: 1px solid #3c3c3c;
+}
+
+.table-custom td:last-child {
+  border-right: none;
+}
+
+.table-custom tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.column-nombre {
+  width: 85%;
+  text-align: left;
+}
+
+.column-acciones {
+  width: 15%;
+  text-align: center;
+  min-width: 120px;
+}
+
+.table-custom th.column-acciones,
+.table-custom td.column-acciones {
+  text-align: center;
+}
+
+/* Botones */
+.btn-container {
+  text-align: right;  /* Alineación del botón a la derecha */
+  margin-top: 20px;    /* Espacio superior */
+}
+
+.btn-add-category {
+  margin-top: 20px;
+  padding: 12px 24px;
+  text-decoration: none;
+  font-weight: bold;
+  background-color: #ffa600;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: none; /* Eliminar la sombra verde */
+}
+
+/* Eliminar efecto de hover en el botón */
+.btn-add-category:hover {
+  background-color: #ffa600; /* Mantener el color original sin cambio en hover */
+  transform: none; /* Eliminar la transformación de hover */
+}
+
+/* Íconos */
+.icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 5px;
+  display: inline-flex;
+  border-radius: 5px;
+}
+
+.icon-edit {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.icon-delete {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.icon-container:hover {
+  transform: translateY(-2px);  /* Mantener solo la elevación */
+  box-shadow: none; /* Eliminar sombra en hover */
+}
+
+.icon-edit:hover {
+  background-color: rgba(255, 193, 7, 0.3);
+}
+
+.icon-delete:hover {
+  background-color: rgba(220, 53, 69, 0.3);
+}
+
+.bx-edit-alt, .bx-trash {
+  font-size: 1.2em;
+}
+
+.icon-container:hover .bx-edit-alt,
+.icon-container:hover .bx-trash {
+  transform: scale(1.1);
+}
+
+/* Títulos */
+.categories-title {
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}

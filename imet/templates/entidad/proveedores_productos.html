@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h1-pueva">Lista de Proveedores</h1>
+<table class="table-custom">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>NOMBRE</th>
+            <th>TELÉFONO</th>
+            <th>Modificar</th>
+            <th>Eliminar</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for proveedor in proveedores %}
+            <tr>
+                <td>{{ proveedor.id }}</td>
+                <td>{{ proveedor.nombre }}</td>
+                <td>{{ proveedor.telefono }}</td>
+                <td>
+                    <a href="{% url 'modificar_proveedor_producto' proveedor.id %}">
+                        <i class='bx bx-edit-alt'></i>
+                    </a>
+                </td>
+                <td>
+                    <!-- Botón para activar el modal -->
+
+                    <a  data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{  proveedor.id }}"  class="icon-container icon-delete">
+                        <i class='bx bx-trash'></i>
+                    </a>
+                    
+                    <!-- Modal único para cada producto -->
+                    <div class="modal" id="confirmDeleteModal{{ proveedor.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmar eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar "{{ proveedor.nombre }}"?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form method="POST" action="{% url 'eliminar_proveedor_producto' proveedor.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="btn-container">
+    <a href="{% url 'nuevo_proveedor_producto' %}">
+        <button class="btn-add-category" type="submit">AÑADIR NUEVO PROVEEDOR</button>
+    </a>
+</div>
+
+{% endblock %}

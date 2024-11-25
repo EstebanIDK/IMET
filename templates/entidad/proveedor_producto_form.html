@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h1-pueva">{{ tipo }} Proveedor{{ dato }}</h1>
+
+<div class="form-container">
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="input-group">
+            {{ form.as_p }}
+        </div>
+        <div class="form-actions">
+            <a href="{% url 'proveedores_productos' %}" class="btn-prueva">Volver</a>
+            <button type="submit" value="Guardar" class="btn-prueva2">Guardar</button>
+        </div>
+    </form>
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

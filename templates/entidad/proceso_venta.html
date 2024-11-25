@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h2>Proceso de Venta</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div id="step1">
+        <h3>Seleccionar Producto</h3>
+        {{ form.producto.errors }}
+        {{ form.producto }}
+        <button type="button" onclick="showNextStep(2)">Siguiente</button>
+    </div>
+
+    <div id="step2" style="display:none;">
+        <h3>Seleccionar Cliente</h3>
+        {{ form.cliente.errors }}
+        {{ form.cliente }}
+        <button type="button" onclick="showNextStep(3)">Siguiente</button>
+        <button type="button" onclick="showPreviousStep(1)">Anterior</button>
+    </div>
+
+    <div id="step3" style="display:none;">
+        <h3>Seleccionar Forma de Pago</h3>
+        {{ form.forma_pago.errors }}
+        {{ form.forma_pago }}
+        <button type="submit">Finalizar Venta</button>
+        <button type="button" onclick="showPreviousStep(2)">Anterior</button>
+    </div>
+</form>
+
+<script>
+function showNextStep(step) {
+    document.getElementById('step' + step).style.display = 'block';
+    document.getElementById('step' + (step - 1)).style.display = 'none';
+}
+
+function showPreviousStep(step) {
+    document.getElementById('step' + step).style.display = 'block';
+    document.getElementById('step' + (step + 1)).style.display = 'none';
+}
+</script>
+
+
+{% endblock %}
+

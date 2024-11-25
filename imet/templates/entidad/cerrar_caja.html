@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<h1> {{caja.saldo_total}} </h1>
+<h1> {{caja.empleado}} </h1>
+<h1> {{caja.fecha_apertura}} </h1>
+
+<form action="" method="post">
+    {%csrf_token%}
+    
+    <button type="submit">Confirmar</button>
+</form>
+{%endblock%}
+
+

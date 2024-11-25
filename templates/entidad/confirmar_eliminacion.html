@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .confirmation-form {
+    background-color: #1e2023;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+    background-color: #2a2a55;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-header h2 {
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: normal;
+  }
+
+  .modal-content {
+    padding: 24px;
+    text-align: center;
+    background-color: #1b1b2b;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+
+  .confirmation-title {
+    color: #ffffff;
+    font-size: 1rem;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+  }
+
+  .confirmation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .btn-back {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background-color 0.3s;
+    min-width: 100px;
+  }
+
+  .btn-back:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-confirm {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.3s;
+    min-width: 100px;
+  }
+
+  .btn-confirm:hover {
+    background-color: #0ea371;
+  }
+
+  .messages {
+    margin-top: 16px;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  .messages p {
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+</style>
+
+<div class="modal-overlay">
+  <div class="confirmation-form">
+    <div class="modal-header">
+      <h2>Confirmar acción</h2>
+    </div>
+    <div class="modal-content">
+      <form action="" method="post">
+        {% csrf_token %}
+        <h1 class="confirmation-title">¿Estás seguro que deseas eliminar {{ objeto }}: {{ dato }}?</h1>
+        <div class="confirmation-actions">
+          <a href="{% url urls %}" class="btn-back">Volver</a>
+          <button type="submit" value="Grabar" class="btn-confirm">Confirmar</button>
+        </div>
+      </form>
+      <div class="messages">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
